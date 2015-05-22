@@ -1,0 +1,37 @@
+h1, h2, h3, h4, h5, h6 {
+    margin: 0px;
+}
+
+p {
+    margin: 0 0 1.5em;
+}
+
+div.content {
+    margin:1em;
+    width:100%;
+}
+
+div.content > div {
+    width:100%;
+}
+
+form.edit {
+    width: 100%;
+    height: 100%;
+}
+
+textarea {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+a.wikilink-new {
+    color: red;
+}
+
+#loading-bar .bar {
+  background: #2c3e50;
+}
