@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	DATA_DIR = "data"
+	DATA_DIR = "data/articles"
 )
 
 var (
@@ -48,7 +48,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request) {
 	title := r.Form.Get("title")
 	format := r.Form.Get("format")
 
-	body, err := ioutil.ReadFile("data/" + title)
+	body, err := ioutil.ReadFile(DATA_DIR + "/" + title)
 	if err != nil {
 		log.Info("Could not find requested article: '%s'", title)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -112,7 +112,7 @@ func CreateArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ioutil.WriteFile("data/"+article.Title, []byte(article.Body), 0644)
+	err = ioutil.WriteFile(DATA_DIR+"/"+article.Title, []byte(article.Body), 0644)
 
 	if err != nil {
 		log.Error("Error saving file: %s", err)
@@ -131,10 +131,11 @@ func init() {
 	article_files, err := ioutil.ReadDir(DATA_DIR)
 
 	if err != nil {
-		log.Error("Error reading articles: %v", err)
+		log.Fatal("Error reading articles: %v", err)
 		return
 	}
 
+	// populate articles cache
 	for _, file := range article_files {
 		if !file.IsDir() {
 			articles[file.Name()] = true
