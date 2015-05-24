@@ -1,5 +1,6 @@
 <section class="12u$">
     <h2><a href="/{{ article.title }}">{{ article.title }}</a></h2>
+    <div ng-if="error" class="error-alert">{{ error }}</div>
 
     <div class="box">
         <div ng-bind-html="getHtmlBody()"></div>

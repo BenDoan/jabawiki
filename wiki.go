@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"github.com/microcosm-cc/bluemonday"
@@ -11,10 +13,11 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"time"
 )
 
 const (
-	DATA_DIR = "data/articles"
+	DATA_DIR = "data"
 )
 
 var (
@@ -40,7 +43,7 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		GetArticle(w, r)
 	case "PUT":
-		CreateArticle(w, r)
+		UpdateArticle(w, r)
 	}
 }
 
@@ -48,7 +51,8 @@ func GetArticle(w http.ResponseWriter, r *http.Request) {
 	title := r.Form.Get("title")
 	format := r.Form.Get("format")
 
-	body, err := ioutil.ReadFile(DATA_DIR + "/" + title)
+	fileName := fmt.Sprintf("%s/articles/%s.txt", DATA_DIR, title)
+	body, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		log.Info("Could not find requested article: '%s'", title)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -83,7 +87,7 @@ func renderMarkdown(body []byte) []byte {
 func processMarkdown(text []byte) []byte {
 	// create wiki links
 	rp := regexp.MustCompile(`\[\[([a-zA-z0-9_]+)\]\]`)
-	body_s := rp.ReplaceAllStringFunc(string(text), func(str string) (link string) {
+	newBody := rp.ReplaceAllStringFunc(string(text), func(str string) (link string) {
 		articleName := str[2 : len(str)-2]
 		if articles[articleName] {
 			link = fmt.Sprintf(`<a href="/%s">%s</a>`, articleName, articleName)
@@ -93,17 +97,18 @@ func processMarkdown(text []byte) []byte {
 		return link
 	})
 
-	return []byte(body_s)
+	return []byte(newBody)
 }
 
-type Article struct {
-	Title string
-	Body  string
+type IncomingArticle struct {
+	Title   string
+	Body    string
+	Summary string
 }
 
-func CreateArticle(w http.ResponseWriter, r *http.Request) {
+func UpdateArticle(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var article Article
+	var article IncomingArticle
 	err := decoder.Decode(&article)
 
 	if err != nil {
@@ -112,15 +117,53 @@ func CreateArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ioutil.WriteFile(DATA_DIR+"/"+article.Title, []byte(article.Body), 0644)
+	// write article
+	fileName := fmt.Sprintf("%s/articles/%s.txt", DATA_DIR, article.Title)
+	err = ioutil.WriteFile(fileName, []byte(article.Body), 0644)
 
 	if err != nil {
-		log.Error("Error saving file: %s", err)
+		log.Error("Error saving article: %s", err)
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	articles[article.Title] = true
+
+	// write article metadata
+	writeMetadata(w, r, article)
+
+	// archive old article
+	archiveArticle(w, article)
+}
+
+func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
+	var b bytes.Buffer
+	gzipWriter := gzip.NewWriter(&b)
+	gzipWriter.Write([]byte(article.Body))
+	gzipWriter.Close()
+
+	fileName := fmt.Sprintf("%s/archive/%s.%d.txt.gz", DATA_DIR, article.Title, time.Now().Unix())
+	err := ioutil.WriteFile(fileName, b.Bytes(), 0644)
+
+	if err != nil {
+		log.Error("Error saving archive: %s", err)
+		http.Error(w, err.Error(), 500)
+		return
+	}
+}
+
+func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
+	fileName := fmt.Sprintf("%s/metadata/%s.meta", DATA_DIR, article.Title)
+	metadataFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+
+	if err != nil {
+		log.Error("Error saving metadata: %s", err)
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	metadata := fmt.Sprintf("%d | %s | %s\n", time.Now().Unix(), r.RemoteAddr, article.Summary)
+	fmt.Fprintf(metadataFile, metadata)
 }
 
 func init() {
@@ -128,7 +171,7 @@ func init() {
 	backendFormatter := logging.NewBackendFormatter(backend, format)
 	logging.SetBackend(backendFormatter)
 
-	article_files, err := ioutil.ReadDir(DATA_DIR)
+	articleFiles, err := ioutil.ReadDir(DATA_DIR + "/articles")
 
 	if err != nil {
 		log.Fatal("Error reading articles: %v", err)
@@ -136,7 +179,7 @@ func init() {
 	}
 
 	// populate articles cache
-	for _, file := range article_files {
+	for _, file := range articleFiles {
 		if !file.IsDir() {
 			articles[file.Name()] = true
 		}

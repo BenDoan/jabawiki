@@ -39,13 +39,16 @@ app.controller('ArticleEditCtrl', ['$scope',
             success(function(data, status, headers, config) {
                 $scope.article = {
                     title: title,
+                    summary: "",
                     body: data
                 }
             }).
             error(function(data, status, headers, config) {
+                $scope.error = "Could not retrieve article"
                 $scope.article = {
                     title: title,
-                    body: null
+                    summary: "",
+                    body: ""
                 }
             });
 

@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	testArticle = &Article{"testarticle", "This is the body"}
+	testArticle = &IncomingArticle{"testarticle", "This is the body", "This changes that"}
 )
 
 func TestAddArticle(t *testing.T) {

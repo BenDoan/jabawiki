@@ -1,7 +1,13 @@
-<h2>{{ article.title }}</h2>
-<form class="edit" novalidate>
-    <textarea cols="100" rows="10" ng-model="article.body"></textarea>
-    <br>
-    <button class="button" ng-click="update(article)">Submit</button>
-    <button class="button alt small" ng-if="article.body" ng-click="viewArticle()">Back</button>
-</form>
+<section class="12u$">
+    <h2>{{ article.title }}</h2>
+    <div ng-if="error" class="error-alert">{{ error }}</div>
+    <form class="edit" novalidate>
+        <textarea cols="100" rows="10" ng-model="article.body"></textarea>
+        <br>
+        Edit summary
+        <input type="text" ng-model="article.summary">
+        <br>
+        <button class="button" ng-click="update(article)">Submit</button>
+        <button class="button alt small" ng-if="article.body" ng-click="viewArticle()">Back</button>
+    </form>
+</section>
