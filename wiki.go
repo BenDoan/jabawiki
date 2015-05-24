@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -181,7 +182,8 @@ func init() {
 	// populate articles cache
 	for _, file := range articleFiles {
 		if !file.IsDir() {
-			articles[file.Name()] = true
+			articleName := strings.Split(file.Name(), ".")[0]
+			articles[articleName] = true
 		}
 	}
 }
