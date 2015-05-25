@@ -27,11 +27,11 @@ var (
 	templates = template.Must(template.ParseFiles("templates/base.html"))
 	articles  = map[string]bool{}
 
-	log    = logging.MustGetLogger("wiki")
-	format = logging.MustStringFormatter("%{color}%{shortfile} %{time:15:04:05} %{level:.4s}%{color:reset} %{message}")
+	log       = logging.MustGetLogger("wiki")
+	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:15:04:05} %{level:.4s}%{color:reset} %{message}")
 )
 
-func angularHandler(w http.ResponseWriter, r *http.Request) {
+func BaseHandler(w http.ResponseWriter, r *http.Request) {
 	err := templates.ExecuteTemplate(w, "base.html", nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -74,17 +74,6 @@ func GetArticle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func renderMarkdown(body []byte) []byte {
-	unsafe := blackfriday.MarkdownCommon(body)
-
-	policy := bluemonday.UGCPolicy()
-	policy.AllowAttrs("class").OnElements("a")
-
-	safe := policy.SanitizeBytes(unsafe)
-
-	return safe
-}
-
 func processMarkdown(text []byte) []byte {
 	// create wiki links
 	rp := regexp.MustCompile(`\[\[([a-zA-z0-9_]+)\]\]`)
@@ -99,6 +88,36 @@ func processMarkdown(text []byte) []byte {
 	})
 
 	return []byte(newBody)
+}
+
+func renderMarkdown(body []byte) []byte {
+	htmlFlags := 0 |
+		blackfriday.HTML_USE_SMARTYPANTS |
+		blackfriday.HTML_SMARTYPANTS_FRACTIONS |
+		blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+		//blackfriday.HTML_TOC
+
+	extensions := 0 |
+		blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
+		blackfriday.EXTENSION_TABLES |
+		blackfriday.EXTENSION_FENCED_CODE |
+		blackfriday.EXTENSION_AUTOLINK |
+		blackfriday.EXTENSION_STRIKETHROUGH |
+		//blackfriday.EXTENSION_SPACE_HEADERS | // TODO: check what this does
+		blackfriday.EXTENSION_BACKSLASH_LINE_BREAK
+
+	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
+
+	unsafe := blackfriday.MarkdownOptions(body, renderer, blackfriday.Options{
+		Extensions: extensions})
+	//unsafe := blackfriday.MarkdownCommon(body)
+
+	policy := bluemonday.UGCPolicy()
+	policy.AllowAttrs("class").OnElements("a")
+
+	safe := policy.SanitizeBytes(unsafe)
+
+	return safe
 }
 
 type IncomingArticle struct {
@@ -130,10 +149,8 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request) {
 
 	articles[article.Title] = true
 
-	// write article metadata
 	writeMetadata(w, r, article)
 
-	// archive old article
 	archiveArticle(w, article)
 }
 
@@ -168,11 +185,12 @@ func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArtic
 }
 
 func init() {
+	// setup logging
 	backend := logging.NewLogBackend(os.Stderr, "", 0)
-	backendFormatter := logging.NewBackendFormatter(backend, format)
+	backendFormatter := logging.NewBackendFormatter(backend, logFormat)
 	logging.SetBackend(backendFormatter)
 
-	articleFiles, err := ioutil.ReadDir(DATA_DIR + "/articles")
+	articleDir, err := ioutil.ReadDir(DATA_DIR + "/articles")
 
 	if err != nil {
 		log.Fatal("Error reading articles: %v", err)
@@ -180,7 +198,7 @@ func init() {
 	}
 
 	// populate articles cache
-	for _, file := range articleFiles {
+	for _, file := range articleDir {
 		if !file.IsDir() {
 			articleName := strings.Split(file.Name(), ".")[0]
 			articles[articleName] = true
@@ -189,7 +207,7 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/", angularHandler)
+	http.HandleFunc("/", BaseHandler)
 	http.HandleFunc("/article", HandleArticle)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
