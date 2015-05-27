@@ -94,8 +94,9 @@ func renderMarkdown(body []byte) []byte {
 	htmlFlags := 0 |
 		blackfriday.HTML_USE_SMARTYPANTS |
 		blackfriday.HTML_SMARTYPANTS_FRACTIONS |
+		//TODO: need to add class to generated html
+		//blackfriday.HTML_TOC |
 		blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
-		//blackfriday.HTML_TOC
 
 	extensions := 0 |
 		blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
@@ -103,14 +104,16 @@ func renderMarkdown(body []byte) []byte {
 		blackfriday.EXTENSION_FENCED_CODE |
 		blackfriday.EXTENSION_AUTOLINK |
 		blackfriday.EXTENSION_STRIKETHROUGH |
-		//blackfriday.EXTENSION_SPACE_HEADERS | // TODO: check what this does
+		blackfriday.EXTENSION_HEADER_IDS |
+		blackfriday.EXTENSION_AUTO_HEADER_IDS |
+		blackfriday.EXTENSION_TITLEBLOCK |
+		//blackfriday.EXTENSION_SPACE_HEADERS |
 		blackfriday.EXTENSION_BACKSLASH_LINE_BREAK
 
 	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
 
 	unsafe := blackfriday.MarkdownOptions(body, renderer, blackfriday.Options{
 		Extensions: extensions})
-	//unsafe := blackfriday.MarkdownCommon(body)
 
 	policy := bluemonday.UGCPolicy()
 	policy.AllowAttrs("class").OnElements("a")
