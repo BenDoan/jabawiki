@@ -3,11 +3,13 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/op/go-logging"
 	"github.com/russross/blackfriday"
+	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -26,10 +28,17 @@ var (
 
 	templates = template.Must(template.ParseFiles("templates/base.html"))
 	articles  = map[string]bool{}
+	users     = map[string]User{}
 
 	log       = logging.MustGetLogger("wiki")
 	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:15:04:05} %{level:.4s}%{color:reset} %{message}")
 )
+
+type User struct {
+	Email    string
+	Name     string
+	Password []byte
+}
 
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
 	err := templates.ExecuteTemplate(w, "base.html", nil)
@@ -187,6 +196,32 @@ func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArtic
 	fmt.Fprintf(metadataFile, metadata)
 }
 
+func HandleRegister(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var user User
+	err := decoder.Decode(&user)
+
+	if err != nil {
+		log.Info("Couldn't parse user for registering")
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	user.Password = hashedPassword
+
+	users[user.Email] = user
+
+	usersFile, err := os.OpenFile(DATA_DIR+"/users.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+
+	if err != nil {
+		log.Error("Couldn't open users file")
+	}
+
+	fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s", user.Email, user.Name, user.Password))
+	fmt.Fprintf(w, "Good")
+}
+
 func init() {
 	// setup logging
 	backend := logging.NewLogBackend(os.Stderr, "", 0)
@@ -207,11 +242,35 @@ func init() {
 			articles[articleName] = true
 		}
 	}
+
+	// populate users
+	csvfile, err := os.Open(DATA_DIR + "/users.txt")
+
+	if err != nil {
+		log.Fatal("Error reading users")
+		return
+	}
+	defer csvfile.Close()
+
+	reader := csv.NewReader(csvfile)
+	reader.FieldsPerRecord = -1
+
+	csvData, err := reader.ReadAll()
+
+	if err != nil {
+		log.Fatal("Error reading users")
+		return
+	}
+
+	for _, user := range csvData {
+		users[user[0]] = User{user[0], user[1], []byte(user[2])}
+	}
 }
 
 func main() {
 	http.HandleFunc("/", BaseHandler)
 	http.HandleFunc("/article", HandleArticle)
+	http.HandleFunc("/user/register", HandleRegister)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	http.Handle("/partials/", http.StripPrefix("/partials/", http.FileServer(http.Dir("./partials/"))))

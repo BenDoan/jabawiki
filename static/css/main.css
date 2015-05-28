@@ -54,10 +54,10 @@ div.error-alert {
     border: 1px dotted red;
 }
 
-div.article ul:first-of-type {
-    list-style-type: none;
-    background-color:#eee;
-}
+/*div.article ul:first-of-type {*/
+    /*list-style-type: none;*/
+    /*background-color:#eee;*/
+/*}*/
 
 /*div.article ul:first-child ul {*/
     /*list-style-type: none;*/

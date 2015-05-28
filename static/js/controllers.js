@@ -24,6 +24,20 @@ app.controller("ArticleViewCtrl", ['$scope',
             return $sce.trustAsHtml($scope.article.body);
         }
 
+        $scope.registerUser = function(){
+            console.log("register");
+
+            ArticleFactory.registerUser().
+            success(function(data){
+                console.log("success")
+                console.log(data);
+            }).
+            error(function(data){
+                console.log("failure")
+                console.log(data);
+            });
+        }
+
 }]);
 
 app.controller('ArticleEditCtrl', ['$scope',
