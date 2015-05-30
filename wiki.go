@@ -218,7 +218,41 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		log.Error("Couldn't open users file")
 	}
 
-	fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s", user.Email, user.Name, user.Password))
+	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s\n", user.Email, user.Name, user.Password))
+	if err != nil {
+		log.Error("Couldn't write to users file")
+		return
+	}
+
+	users[user[0]] = User{user[0], user[1], []byte(user[2])}
+
+	fmt.Fprintf(w, "Good")
+}
+
+func HandleLogin(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var user User
+	err := decoder.Decode(&user)
+
+	fmt.Printf("Trying to login with %v", user)
+
+	if err != nil {
+		log.Info("Couldn't parse user for login")
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
+	if val, ok := users[user.Email]; ok {
+		if bcrypt.CompareHashAndPassword(user.Password, val.Password) == nil {
+			// login user
+		} else {
+			log.Info("Bad password")
+			http.Error(w, err.Error(), 400)
+		}
+	} else {
+		log.Info("Couldn't find user")
+		http.Error(w, err.Error(), 400)
+	}
 	fmt.Fprintf(w, "Good")
 }
 
@@ -270,7 +304,9 @@ func init() {
 func main() {
 	http.HandleFunc("/", BaseHandler)
 	http.HandleFunc("/article", HandleArticle)
+
 	http.HandleFunc("/user/register", HandleRegister)
+	http.HandleFunc("/user/login", HandleLogin)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 	http.Handle("/partials/", http.StripPrefix("/partials/", http.FileServer(http.Dir("./partials/"))))

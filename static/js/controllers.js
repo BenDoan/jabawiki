@@ -25,17 +25,13 @@ app.controller("ArticleViewCtrl", ['$scope',
         }
 
         $scope.registerUser = function(){
-            console.log("register");
-
             ArticleFactory.registerUser().
-            success(function(data){
-                console.log("success")
-                console.log(data);
-            }).
-            error(function(data){
-                console.log("failure")
-                console.log(data);
-            });
+                success(function(data){
+                    console.log("Register succeeded")
+                }).
+                error(function(data){
+                    console.log("Register failed")
+                });
         }
 
 }]);
@@ -74,7 +70,6 @@ app.controller('ArticleEditCtrl', ['$scope',
                 error(function(data, status, headers, config) {
                     console.log("Couldn't update article");
                 });
-
         };
 
         $scope.viewArticle = function() {

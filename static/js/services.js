@@ -18,8 +18,22 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
         return $http({
             method: 'POST',
             url: '/user/register',
-            data: "email=test@bendoan.me&name=Ben Doan&password=pass",
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            data: {
+                email: "testing@bendoan.me",
+                name: "Test User"
+                password: "password"
+            }
+        })
+    };
+
+    exports.loginUser = function(){
+        return $http({
+            method: 'POST',
+            url: '/user/login',
+            data: {
+                email: "testing@bendoan.me",
+                password: "password"
+            }
         })
     };
 
