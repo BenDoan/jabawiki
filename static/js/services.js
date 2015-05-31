@@ -20,7 +20,7 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
             url: '/user/register',
             data: {
                 email: "testing@bendoan.me",
-                name: "Test User"
+                name: "Test User",
                 password: "password"
             }
         })

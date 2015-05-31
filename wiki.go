@@ -6,6 +6,8 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
+	//"github.com/gorilla/sessions"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/op/go-logging"
 	"github.com/russross/blackfriday"
@@ -224,7 +226,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	users[user[0]] = User{user[0], user[1], []byte(user[2])}
+	users[user.Email] = user
 
 	fmt.Fprintf(w, "Good")
 }
@@ -302,14 +304,19 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/", BaseHandler)
-	http.HandleFunc("/article", HandleArticle)
+	r := mux.NewRouter()
+	r.HandleFunc("/", BaseHandler)
+	r.HandleFunc("/article", HandleArticle)
 
-	http.HandleFunc("/user/register", HandleRegister)
-	http.HandleFunc("/user/login", HandleLogin)
+	r.HandleFunc("/user/register", HandleRegister)
+	r.HandleFunc("/user/login", HandleLogin)
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
-	http.Handle("/partials/", http.StripPrefix("/partials/", http.FileServer(http.Dir("./partials/"))))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	r.PathPrefix("/partials/").Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))
+
+	r.PathPrefix("/").HandlerFunc(BaseHandler)
+
+	http.Handle("/", r)
 
 	log.Notice("Listening on %s", listen)
 	http.ListenAndServe(listen, nil)
