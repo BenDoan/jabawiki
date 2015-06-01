@@ -3,16 +3,18 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/rand"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	//"github.com/gorilla/sessions"
+	"github.com/gorilla/sessions"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/op/go-logging"
 	"github.com/russross/blackfriday"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -34,12 +36,13 @@ var (
 
 	log       = logging.MustGetLogger("wiki")
 	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:15:04:05} %{level:.4s}%{color:reset} %{message}")
+
+	store = sessions.NewCookieStore([]byte("xxxxsecret"))
 )
 
 type User struct {
-	Email    string
-	Name     string
-	Password []byte
+	Id, Email, Name string
+	Password        []byte
 }
 
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
@@ -198,10 +201,27 @@ func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArtic
 	fmt.Fprintf(metadataFile, metadata)
 }
 
+func GenUUID() string {
+	uuid := make([]byte, 16)
+	n, err := io.ReadFull(rand.Reader, uuid)
+
+	if n != len(uuid) || err != nil {
+		panic(fmt.Sprintf("Couldn't generate uuid %v", err))
+	}
+
+	uuid[8] = uuid[8]&^0xc0 | 0x80
+	uuid[6] = uuid[6]&^0xf0 | 0x40
+	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:])
+}
+
+type IncomingUser struct {
+	Email, Name, Password string
+}
+
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var user User
-	err := decoder.Decode(&user)
+	var incomingUser IncomingUser
+	err := decoder.Decode(&incomingUser)
 
 	if err != nil {
 		log.Info("Couldn't parse user for registering")
@@ -209,10 +229,8 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
-	user.Password = hashedPassword
-
-	users[user.Email] = user
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(incomingUser.Password), 10)
+	user := User{GenUUID(), incomingUser.Email, incomingUser.Name, hashedPassword}
 
 	usersFile, err := os.OpenFile(DATA_DIR+"/users.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
@@ -220,23 +238,20 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		log.Error("Couldn't open users file")
 	}
 
-	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s\n", user.Email, user.Name, user.Password))
+	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s,%s\n", user.Id, user.Email, user.Name, user.Password))
 	if err != nil {
 		log.Error("Couldn't write to users file")
 		return
 	}
 
 	users[user.Email] = user
-
 	fmt.Fprintf(w, "Good")
 }
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var user User
-	err := decoder.Decode(&user)
-
-	fmt.Printf("Trying to login with %v", user)
+	var incomingUser IncomingUser
+	err := decoder.Decode(&incomingUser)
 
 	if err != nil {
 		log.Info("Couldn't parse user for login")
@@ -244,16 +259,22 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if val, ok := users[user.Email]; ok {
-		if bcrypt.CompareHashAndPassword(user.Password, val.Password) == nil {
+	if storedUser, ok := users[incomingUser.Email]; ok {
+		if bcrypt.CompareHashAndPassword(storedUser.Password, []byte(incomingUser.Password)) == nil {
 			// login user
+			session, _ := store.Get(r, "user")
+			session.Values["id"] = storedUser.Id
+			session.Save(r, w)
+			log.Info("log in!")
 		} else {
 			log.Info("Bad password")
 			http.Error(w, err.Error(), 400)
+			return
 		}
 	} else {
 		log.Info("Couldn't find user")
 		http.Error(w, err.Error(), 400)
+		return
 	}
 	fmt.Fprintf(w, "Good")
 }
@@ -299,7 +320,11 @@ func init() {
 	}
 
 	for _, user := range csvData {
-		users[user[0]] = User{user[0], user[1], []byte(user[2])}
+		if len(user) == 4 {
+			users[user[1]] = User{user[0], user[1], user[2], []byte(user[3])}
+		} else {
+			log.Error("Invalid row in csv file: %v", user)
+		}
 	}
 }
 

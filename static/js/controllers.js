@@ -33,6 +33,15 @@ app.controller("ArticleViewCtrl", ['$scope',
                     console.log("Register failed")
                 });
         }
+        $scope.loginUser = function(){
+            ArticleFactory.loginUser().
+                success(function(data){
+                    console.log("Login succeeded")
+                }).
+                error(function(data){
+                    console.log("Login failed")
+                });
+        }
 
 }]);
 
