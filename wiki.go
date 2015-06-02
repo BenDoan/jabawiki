@@ -54,16 +54,36 @@ func BaseHandler(w http.ResponseWriter, r *http.Request) {
 
 func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	switch r.Method {
-	case "GET":
-		GetArticle(w, r)
-	case "PUT":
-		UpdateArticle(w, r)
+
+	session, err := store.Get(r, "user")
+
+	if err != nil {
+		log.Error("Session had error: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+
+	if data, ok := session.Values["id"]; ok {
+		if userId, ok := data.(string); ok {
+			if user, ok := users[userId]; ok {
+				var _ = user
+				vars := mux.Vars(r)
+				title := vars["title"]
+
+				switch r.Method {
+				case "GET":
+					GetArticle(w, r, title)
+				case "PUT":
+					UpdateArticle(w, r, title)
+				}
+			}
+		}
+	}
+
+	http.Error(w, "Not allowed", http.StatusUnauthorized)
 }
 
-func GetArticle(w http.ResponseWriter, r *http.Request) {
-	title := r.Form.Get("title")
+func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
 	format := r.Form.Get("format")
 
 	fileName := fmt.Sprintf("%s/articles/%s.txt", DATA_DIR, title)
@@ -143,13 +163,13 @@ type IncomingArticle struct {
 	Summary string
 }
 
-func UpdateArticle(w http.ResponseWriter, r *http.Request) {
+func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	decoder := json.NewDecoder(r.Body)
 	var article IncomingArticle
 	err := decoder.Decode(&article)
 
 	if err != nil {
-		log.Info("Couldn't parse article for saving")
+		log.Info("Couldn't parse article for saving: %s", err)
 		http.Error(w, err.Error(), 400)
 		return
 	}
@@ -244,6 +264,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	users[user.Id] = user
 	users[user.Email] = user
 	fmt.Fprintf(w, "Good")
 }
@@ -321,6 +342,7 @@ func init() {
 
 	for _, user := range csvData {
 		if len(user) == 4 {
+			users[user[0]] = User{user[0], user[1], user[2], []byte(user[3])}
 			users[user[1]] = User{user[0], user[1], user[2], []byte(user[3])}
 		} else {
 			log.Error("Invalid row in csv file: %v", user)
@@ -331,7 +353,7 @@ func init() {
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", BaseHandler)
-	r.HandleFunc("/article", HandleArticle)
+	r.HandleFunc("/article/{title}", HandleArticle)
 
 	r.HandleFunc("/user/register", HandleRegister)
 	r.HandleFunc("/user/login", HandleLogin)

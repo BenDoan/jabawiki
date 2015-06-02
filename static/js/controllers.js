@@ -16,8 +16,12 @@ app.controller("ArticleViewCtrl", ['$scope',
                 }
             }).
             error(function(data, status, headers, config) {
-                console.log("redirecting")
-                $location.path('/' + title + '/edit')
+                // not allowed
+                if (status === 401) {
+                    $scope.error = "Not allowed, please login"
+                }else{
+                    $location.path('/' + title + '/edit');
+                }
             });
 
         $scope.getHtmlBody = function(){

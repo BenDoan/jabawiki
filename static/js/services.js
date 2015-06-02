@@ -2,14 +2,14 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
     var exports = {};
 
     exports.getArticle = function(format, title){
-        url = '/article?format=' + format + '&title=' + title
+        url = '/article/' + title + '?format=' + format
         return $http({method: 'GET', url: url})
     };
 
     exports.updateArticle = function(article){
         return $http({
                 method: 'put',
-                url: '/article',
+                url: '/article/' + article.title,
                 data: article
             })
     };

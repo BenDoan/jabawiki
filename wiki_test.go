@@ -19,7 +19,9 @@ func TestAddArticle(t *testing.T) {
 	articleJson, _ := json.Marshal(testArticle)
 	reader := bytes.NewReader(articleJson)
 
-	req, _ := http.NewRequest("PUT", "/article", reader)
+	url := fmt.Sprintf("/article/%s", testArticle.Title)
+
+	req, _ := http.NewRequest("PUT", url, reader)
 	resp := httptest.NewRecorder()
 
 	HandleArticle(resp, req)
@@ -32,7 +34,7 @@ func TestAddArticle(t *testing.T) {
 func TestGetArticleMarkdown(t *testing.T) {
 	TestAddArticle(t)
 
-	url := fmt.Sprintf("/article?title=%s&format=markdown", testArticle.Title)
+	url := fmt.Sprintf("/article/%s?format=markdown", testArticle.Title)
 	req, _ := http.NewRequest("GET", url, nil)
 	resp := httptest.NewRecorder()
 
@@ -52,7 +54,8 @@ func TestGetArticleMarkdown(t *testing.T) {
 func TestGetArticleHtml(t *testing.T) {
 	TestAddArticle(t)
 
-	url := fmt.Sprintf("/article?title=%s&format=html", testArticle.Title)
+	url := fmt.Sprintf("/article/%s?format=html", testArticle.Title)
+	fmt.Println("Trying to get article: ", url)
 	req, _ := http.NewRequest("GET", url, nil)
 	resp := httptest.NewRecorder()
 
