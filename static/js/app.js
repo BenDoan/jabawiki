@@ -3,13 +3,17 @@ var app = angular.module('wiki', ['ngRoute', 'angular-loading-bar']).
     function($routeProvider, $locationProvider){
         $routeProvider.
             when('/', {
-                redirectTo: '/Home'
+                redirectTo: '/w/Home'
             }).
-            when('/:title/edit', {
+            when('/login', {
+                templateUrl: 'partials/login.html',
+                controller: 'LoginCtrl'
+            }).
+            when('/w/:title/edit', {
                 templateUrl: 'partials/edit.html',
                 controller: 'ArticleEditCtrl'
             }).
-            when('/:title', {
+            when('/w/:title', {
                 templateUrl: 'partials/view.html',
                 controller: 'ArticleViewCtrl'
             }).

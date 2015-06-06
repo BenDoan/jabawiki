@@ -114,9 +114,9 @@ func processMarkdown(text []byte) []byte {
 	newBody := rp.ReplaceAllStringFunc(string(text), func(str string) (link string) {
 		articleName := str[2 : len(str)-2]
 		if articles[articleName] {
-			link = fmt.Sprintf(`<a href="/%s">%s</a>`, articleName, articleName)
+			link = fmt.Sprintf(`<a href="/w/%s">%s</a>`, articleName, articleName)
 		} else {
-			link = fmt.Sprintf(`<a class="wikilink-new" href="/%s">%s</a>`, articleName, articleName)
+			link = fmt.Sprintf(`<a class="wikilink-new" href="/w/%s">%s</a>`, articleName, articleName)
 		}
 		return link
 	})

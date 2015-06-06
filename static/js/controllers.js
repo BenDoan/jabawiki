@@ -20,7 +20,7 @@ app.controller("ArticleViewCtrl", ['$scope',
                 if (status === 401) {
                     $scope.error = "Not allowed, please login"
                 }else{
-                    $location.path('/' + title + '/edit');
+                    $location.path('/w/' + title + '/edit');
                 }
             });
 
@@ -86,6 +86,14 @@ app.controller('ArticleEditCtrl', ['$scope',
         };
 
         $scope.viewArticle = function() {
-            $location.path('/'+title);
+            $location.path('/w/'+title);
         };
+    }]);
+
+app.controller("LoginCtrl", ['$scope',
+                                   '$routeParams',
+                                   '$location',
+                                   '$sce',
+                                   'ArticleFactory',
+    function($scope, $routeParams, $location, $sce, ArticleFactory){
     }]);
