@@ -35,7 +35,7 @@ var (
 	users     = map[string]User{}
 
 	log       = logging.MustGetLogger("wiki")
-	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:15:04:05} %{level:.4s}%{color:reset} %{message}")
+	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:2006-01-02 15:04:05} %{level:.4s}%{color:reset} %{message}")
 
 	store = sessions.NewCookieStore([]byte("xxxxsecret"))
 )
@@ -73,14 +73,17 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 				switch r.Method {
 				case "GET":
 					GetArticle(w, r, title)
+					return
 				case "PUT":
 					UpdateArticle(w, r, title)
+					return
 				}
 			}
 		}
 	}
 
 	http.Error(w, "Not allowed", http.StatusUnauthorized)
+	return
 }
 
 func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
