@@ -276,6 +276,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var incomingUser IncomingUser
 	err := decoder.Decode(&incomingUser)
+	fmt.Printf("incominguser: %v", incomingUser)
 
 	if err != nil {
 		log.Info("Couldn't parse user for login")
@@ -283,6 +284,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Info("looking for email: " + incomingUser.Email)
 	if storedUser, ok := users[incomingUser.Email]; ok {
 		if bcrypt.CompareHashAndPassword(storedUser.Password, []byte(incomingUser.Password)) == nil {
 			// login user
@@ -290,16 +292,26 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 			session.Values["id"] = storedUser.Id
 			session.Save(r, w)
 			log.Info("log in!")
+			fmt.Fprintf(w, "Good")
 		} else {
 			log.Info("Bad password")
-			http.Error(w, err.Error(), 400)
+			http.Error(w, "Invalid email or password", http.StatusNotFound)
 			return
 		}
 	} else {
 		log.Info("Couldn't find user")
-		http.Error(w, err.Error(), 400)
+		http.Error(w, "Invalid email or password", http.StatusBadRequest)
 		return
 	}
+}
+
+func HandleLogout(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "user")
+	session.Values["id"] = -1
+	session.Save(r, w)
+
+	log.Info("log out!")
+
 	fmt.Fprintf(w, "Good")
 }
 
@@ -360,6 +372,7 @@ func main() {
 
 	r.HandleFunc("/user/register", HandleRegister)
 	r.HandleFunc("/user/login", HandleLogin)
+	r.HandleFunc("/user/logout", HandleLogout)
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	r.PathPrefix("/partials/").Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))

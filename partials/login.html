@@ -1,10 +1,15 @@
-<section class="12u$">
-    <div class="one-third column">&nbsp;</div>
-    <div class="one-third column">
-        <input type="text">
-        <input type="password">
+<form>
+    <div class="row">
+        <div class="six columns">
+            <label for="email">Email</label>
+            <input ng-model="email" type="email" name="email" class="u-full-width" placeholder="name@example.com">
+
+            <label for="password">Password</label>
+            <input ng-model="password" type="password" name="password" class="u-full-width" placeholder="**********">
+
+            <br>
+            <button class="button" ng-click="login()">Login</button>
+            <button class="button">Register</button>
+        </div>
     </div>
-    <div class="one-third column">&nbsp;</div>
-</section>
-<button ng-click="registerUser()">register</button>
-<button ng-click="loginUser()">login</button>
+</form>

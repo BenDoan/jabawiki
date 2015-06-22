@@ -2,8 +2,9 @@ app.controller("ArticleViewCtrl", ['$scope',
                                    '$routeParams',
                                    '$location',
                                    '$sce',
+                                   '$timeout',
                                    'ArticleFactory',
-    function($scope, $routeParams, $location, $sce, ArticleFactory){
+    function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
         title = $routeParams.title;
         $scope.article = {}
 
@@ -37,6 +38,7 @@ app.controller("ArticleViewCtrl", ['$scope',
                     console.log("Register failed")
                 });
         }
+
         $scope.loginUser = function(){
             ArticleFactory.loginUser().
                 success(function(data){
@@ -45,6 +47,24 @@ app.controller("ArticleViewCtrl", ['$scope',
                 error(function(data){
                     console.log("Login failed")
                 });
+
+            $timeout(function(){
+                $location.path('/');
+            }, 500);
+        }
+
+        $scope.logoutUser = function(){
+            ArticleFactory.logoutUser().
+                success(function(data){
+                    console.log("Logout succeeded")
+                }).
+                error(function(data){
+                    console.log("Logout failed")
+                });
+            $timeout(function(){
+
+                $location.path('/');
+            }, 500);
         }
 
 }]);
@@ -94,6 +114,19 @@ app.controller("LoginCtrl", ['$scope',
                                    '$routeParams',
                                    '$location',
                                    '$sce',
+                                   '$timeout',
                                    'ArticleFactory',
-    function($scope, $routeParams, $location, $sce, ArticleFactory){
+    function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+        $scope.login = function(article){
+            ArticleFactory.loginUser($scope.email, $scope.password).
+                success(function(data, status, headers, config) {
+                    $timeout(function(){
+                        $location.path('/');
+                    }, 500);
+                }).
+                error(function(data, status, headers, config) {
+                    $scope.error = "Login failed"
+                    console.log("Login error: " + status + "Data: " + data)
+                });
+        };
     }]);

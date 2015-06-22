@@ -26,14 +26,21 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
         })
     };
 
-    exports.loginUser = function(){
+    exports.loginUser = function(email, password){
         return $http({
             method: 'POST',
             url: '/user/login',
             data: {
-                email: "testing@bendoan.me",
-                password: "password"
+                email: email,
+                password: password
             }
+        })
+    };
+
+    exports.logoutUser = function(){
+        return $http({
+            method: 'POST',
+            url: '/user/logout'
         })
     };
 
