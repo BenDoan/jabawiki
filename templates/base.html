@@ -1,49 +1,39 @@
-<!doctype html>
-<html class="no-js" lang="" ng-app="wiki">
+<!DOCTYPE html>
+<html lang="en" ng-app="wiki">
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Wiki</title>
-        <meta name="description" content="">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Wiki</title>
+
+        <link href="/static/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
 
         <script src="/static/js/jquery.min.js"></script>
-        <script src="/static/js/skel.min.js"></script>
-        <!--<script src="/static/js/skel-layers.min.js"></script>-->
-        <script src="/static/js/init.js"></script>
-
-        <noscript>
-            <link rel="stylesheet" href="/static/css/skel.css" />
-            <link rel="stylesheet" href="/static/css/style.css" />
-            <link rel="stylesheet" href="/static/css/style-xlarge.css" />
-        </noscript>
-
+        <!--<link rel="stylesheet" href="/static/css/style.css" />-->
         <link rel="stylesheet" href="/static/lib/angular-loading-bar/build/loading-bar.min.css" />
 
         <link rel="stylesheet" href="/static/css/main.css">
 
         <base href="/">
     </head>
+
     <body>
-        <!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-            <![endif]-->
-            <!-- Header -->
-            <div class="container">
-                <div class="row content">
-                    <a href="/">Home</a>
-                    <div ng-view></div>
-                </div>
-            </div> <!-- /container -->
+        <div class="container">
+            <div class="row">
+                <a href="/">Home</a>
+                <div ng-view></div>
+            </div>
+        </div> <!-- /container -->
 
-            <script src="/static/lib/angular/angular.js"></script>
-            <script src="/static/lib/angular-route/angular-route.js"></script>
-            <script src="/static/lib/angular-resource/angular-resource.js"></script>
+        <script src="/static/lib/angular/angular.js"></script>
+        <script src="/static/lib/angular-route/angular-route.js"></script>
+        <script src="/static/lib/angular-resource/angular-resource.js"></script>
 
-            <script src="/static/js/app.js"></script>
-            <script src="/static/js/services.js"></script>
-            <script src="/static/js/controllers.js"></script>
+        <script src="/static/js/app.js"></script>
+        <script src="/static/js/services.js"></script>
+        <script src="/static/js/controllers.js"></script>
 
-            <script src="/static/lib/angular-loading-bar/build/loading-bar.min.js"></script>
+        <script src="/static/lib/angular-loading-bar/build/loading-bar.min.js"></script>
     </body>
 </html>
+

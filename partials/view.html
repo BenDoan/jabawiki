@@ -1,12 +1,13 @@
-<section class="12u$">
-    <h2><a href="/{{ article.title }}">{{ article.title }}</a></h2>
-    <div ng-if="error" class="error-alert">{{ error }}</div>
+<a href="/w/{{ article.title }}/edit">Edit</a>
+
+<div class="row">
+    <h2 class="title"><a href="/{{ article.title }}">{{ article.title }}</a></h2>
+    <div ng-if="error" class="alert alert-danger">{{ error }}</div>
 
     <div class="box">
         <div class="article" ng-bind-html="getHtmlBody()"></div>
     </div>
-    <a class="button small" href="/w/{{ article.title}}/edit"</a>edit</a>
-</section>
+</div>
 <button ng-click="registerUser()">register</button>
 <button ng-click="logoutUser()">logout</button>
 <a href="/login">login</a>
