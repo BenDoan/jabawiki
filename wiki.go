@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -366,6 +367,8 @@ func init() {
 }
 
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", BaseHandler)
 	r.HandleFunc("/article/{title}", HandleArticle)
@@ -382,5 +385,21 @@ func main() {
 	http.Handle("/", r)
 
 	log.Notice("Listening on %s", listen)
-	http.ListenAndServe(listen, nil)
+	err := http.ListenAndServe(listen, nil)
+	if err != nil {
+		log.Fatal("Web server (HTTP): ", err)
+	}
+
+	//go func() {
+	//err := http.ListenAndServe(":80", http.RedirectHandler("https://localhost", http.StatusFound))
+	//if err != nil {
+	//panic("Error: " + err.Error())
+	//}
+	//}()
+
+	//log.Info("Serving https")
+	//err := http.ListenAndServeTLS(listen, "flainted.cert.pem", "flainted.key.pem", nil)
+	//if err != nil {
+	//log.Fatal("Web server (HTTPS): ", err)
+	//}
 }

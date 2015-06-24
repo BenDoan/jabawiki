@@ -1,6 +1,6 @@
 <section class="12u$">
     <h2>{{ article.title }}</h2>
-    <div ng-if="error" class="error-alert">{{ error }}</div>
+    <div ng-if="error" class="alert alert-danger">{{ error }}</div>
     <form class="edit" novalidate>
         <textarea class="form-control" cols="100" rows="10" ng-model="article.body"></textarea>
         <br>
