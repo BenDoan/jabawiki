@@ -327,7 +327,7 @@ func init() {
 
 	if err != nil {
 		log.Fatal("Error reading articles: %v", err)
-		return
+		panic(err)
 	}
 
 	// populate articles cache
@@ -343,6 +343,7 @@ func init() {
 
 	if err != nil {
 		log.Fatal("Error opening users file: %v", err)
+		panic(err)
 		return
 	}
 	defer csvfile.Close()
@@ -350,14 +351,20 @@ func init() {
 	reader := csv.NewReader(csvfile)
 	reader.FieldsPerRecord = -1
 
-	csvData, err := reader.ReadAll()
+	//csvData, err := reader.ReadAll()
 
-	if err != nil {
-		log.Fatal("Error reading users file: %v", err)
-		return
-	}
+	for {
+		user, err := reader.Read()
 
-	for _, user := range csvData {
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatal("Error reading users file: %v", err)
+			panic(err)
+		}
+
 		if len(user) == 4 {
 			users[user[0]] = User{user[0], user[1], user[2], []byte(user[3])}
 			users[user[1]] = User{user[0], user[1], user[2], []byte(user[3])}
