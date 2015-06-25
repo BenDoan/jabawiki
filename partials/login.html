@@ -1,15 +1,37 @@
-<form>
-    <div class="row">
-        <div class="six columns">
-            <label for="email">Email</label>
-            <input ng-model="email" class="form-control" type="email" name="email" placeholder="name@example.com">
+<div ng-if="error" class="alert alert-danger">{{ error }}</div>
 
-            <label for="password">Password</label>
-            <input ng-model="password" type="password" name="password" class="form-control" placeholder="**********">
+<div class="row">
+    <h2>Login</h2>
+    <form class="col-xs-4 col-sm-4 col-md-4">
+        <label for="email">Email</label>
+        <input ng-model="email" class="form-control" type="email" name="email" >
 
-            <br>
-            <button class="btn" ng-click="login()">Login</button>
-            <button class="btn">Register</button>
-        </div>
-    </div>
-</form>
+        <label for="password">Password</label>
+        <input ng-model="password" type="password" name="password" class="form-control">
+
+        <br>
+        <button class="btn btn-primary" ng-click="login()">Login</button>
+    </form>
+</div>
+
+<br/>
+
+<div class="row">
+    <h2>Register</h2>
+    <form class="col-xs-6 col-sm-6 col-md-6">
+        <label for="email">Email</label>
+        <input ng-model="reg_email" class="form-control" type="email" name="email" >
+
+        <label for="name">Name</label>
+        <input ng-model="reg_name" class="form-control" type="text" name="name" >
+
+        <label for="password">Password</label>
+        <input ng-model="reg_password" type="password" name="password" class="form-control">
+
+        <label for="password2">Confirm password</label>
+        <input ng-model="reg_password2" type="password" name="password2" class="form-control">
+
+        <br>
+        <button class="btn btn-warning" ng-click="register()">Register</button>
+    </form>
+</div>

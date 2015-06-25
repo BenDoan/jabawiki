@@ -14,14 +14,14 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
             })
     };
 
-    exports.registerUser = function(){
+    exports.registerUser = function(email, name, password){
         return $http({
             method: 'POST',
             url: '/user/register',
             data: {
-                email: "testing@bendoan.me",
-                name: "Test User",
-                password: "password"
+                email: email,
+                name: name,
+                password: password
             }
         })
     };

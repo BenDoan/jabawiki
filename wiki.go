@@ -225,7 +225,7 @@ func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArtic
 	fmt.Fprintf(metadataFile, metadata)
 }
 
-func GenUUID() string {
+func genUUID() string {
 	uuid := make([]byte, 16)
 	n, err := io.ReadFull(rand.Reader, uuid)
 
@@ -253,8 +253,12 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if _, ok := users[incomingUser.Email]; ok {
+		http.Error(w, "User already exists", 400)
+	}
+
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(incomingUser.Password), 10)
-	user := User{GenUUID(), incomingUser.Email, incomingUser.Name, hashedPassword}
+	user := User{genUUID(), incomingUser.Email, incomingUser.Name, hashedPassword}
 
 	usersFile, err := os.OpenFile(DATA_DIR+"/users.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
@@ -296,7 +300,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Good")
 		} else {
 			log.Info("Bad password")
-			http.Error(w, "Invalid email or password", http.StatusNotFound)
+			http.Error(w, "Invalid email or password", http.StatusBadRequest)
 			return
 		}
 	} else {

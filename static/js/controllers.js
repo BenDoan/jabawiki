@@ -17,7 +17,6 @@ app.controller("ArticleViewCtrl", ['$scope',
                 }
             }).
             error(function(data, status, headers, config) {
-                // not allowed
                 if (status === 401) {
                     $scope.error = "Not allowed, please login"
                 }else{
@@ -125,8 +124,26 @@ app.controller("LoginCtrl", ['$scope',
                     }, 500);
                 }).
                 error(function(data, status, headers, config) {
-                    $scope.error = "Login failed"
-                    console.log("Login error: " + status + "Data: " + data)
+                    $scope.error = data;
+                });
+        };
+
+        $scope.register = function(article){
+            if ($scope.reg_password != $scope.reg_password2){
+                $scope.error = "Passwords do not match";
+                return
+            }
+
+            ArticleFactory.registerUser($scope.reg_email, $scope.reg_name, $scope.reg_password).
+                success(function(data, status, headers, config) {
+                    $scope.error = "Success! Please log in";
+                    $scope.reg_email = '';
+                    $scope.reg_name = '';
+                    $scope.reg_password = '';
+                    $scope.reg_password2 = '';
+                }).
+                error(function(data, status, headers, config) {
+                    $scope.error = data;
                 });
         };
     }]);
