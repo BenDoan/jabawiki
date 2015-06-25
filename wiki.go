@@ -49,6 +49,7 @@ type User struct {
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
 	err := templates.ExecuteTemplate(w, "base.html", nil)
 	if err != nil {
+		log.Error("Couldn't send base template: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -93,7 +94,6 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
 	fileName := fmt.Sprintf("%s/articles/%s.txt", DATA_DIR, title)
 	body, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		log.Info("Could not find requested article: '%s'", title)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -106,23 +106,20 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
 		safe := renderMarkdown(processedBody)
 		fmt.Fprintf(w, string(safe))
 	default:
-		log.Info("Invalid format type requested: '%s'", format)
-		http.Error(w, err.Error(), 400)
-		return
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
 func processMarkdown(text []byte) []byte {
 	// create wiki links
-	rp := regexp.MustCompile(`\[\[([a-zA-z0-9_]+)\]\]`)
-	newBody := rp.ReplaceAllStringFunc(string(text), func(str string) (link string) {
-		articleName := str[2 : len(str)-2]
+	pattern := regexp.MustCompile(`\[\[([a-zA-z0-9_]+)\]\]`)
+	newBody := pattern.ReplaceAllStringFunc(string(text), func(str string) string {
+		articleName := str[2 : len(str)-2] //remove brackets
 		if articles[articleName] {
-			link = fmt.Sprintf(`<a href="/w/%s">%s</a>`, articleName, articleName)
+			return fmt.Sprintf(`<a href="/w/%s">%s</a>`, articleName, articleName)
 		} else {
-			link = fmt.Sprintf(`<a class="wikilink-new" href="/w/%s">%s</a>`, articleName, articleName)
+			return fmt.Sprintf(`<a class="wikilink-new" href="/w/%s">%s</a>`, articleName, articleName)
 		}
-		return link
 	})
 
 	return []byte(newBody)
@@ -173,8 +170,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	err := decoder.Decode(&article)
 
 	if err != nil {
-		log.Info("Couldn't parse article for saving: %s", err)
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -248,30 +244,38 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&incomingUser)
 
 	if err != nil {
-		log.Info("Couldn't parse user for registering")
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if _, ok := users[incomingUser.Email]; ok {
-		http.Error(w, "User already exists", 400)
+		http.Error(w, "User already exists", http.StatusBadRequest)
+		return
 	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(incomingUser.Password), 10)
-	user := User{genUUID(), incomingUser.Email, incomingUser.Name, hashedPassword}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(incomingUser.Password), 10)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 
 	usersFile, err := os.OpenFile(DATA_DIR+"/users.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
-		log.Error("Couldn't open users file")
-	}
-
-	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s,%s\n", user.Id, user.Email, user.Name, user.Password))
-	if err != nil {
-		log.Error("Couldn't write to users file")
+		log.Error("Couldn't open users file: ", err)
+		http.Error(w, "Couldn't open users file", http.StatusInternalServerError)
 		return
 	}
 
+	user := User{genUUID(), incomingUser.Email, incomingUser.Name, hashedPassword}
+	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s,%s\n", user.Id, user.Email, user.Name, user.Password))
+	if err != nil {
+		log.Error("Couldn't write to users file: %v", err)
+		http.Error(w, "Couldn't write to users file", http.StatusInternalServerError)
+		return
+	}
+
+	// allow user to be looked up by id or email
 	users[user.Id] = user
 	users[user.Email] = user
 	fmt.Fprintf(w, "Good")
@@ -279,32 +283,27 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
+
 	var incomingUser IncomingUser
 	err := decoder.Decode(&incomingUser)
-	fmt.Printf("incominguser: %v", incomingUser)
 
 	if err != nil {
-		log.Info("Couldn't parse user for login")
-		http.Error(w, err.Error(), 400)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	log.Info("looking for email: " + incomingUser.Email)
 	if storedUser, ok := users[incomingUser.Email]; ok {
 		if bcrypt.CompareHashAndPassword(storedUser.Password, []byte(incomingUser.Password)) == nil {
 			// login user
 			session, _ := store.Get(r, "user")
 			session.Values["id"] = storedUser.Id
 			session.Save(r, w)
-			log.Info("log in!")
 			fmt.Fprintf(w, "Good")
 		} else {
-			log.Info("Bad password")
 			http.Error(w, "Invalid email or password", http.StatusBadRequest)
 			return
 		}
 	} else {
-		log.Info("Couldn't find user")
 		http.Error(w, "Invalid email or password", http.StatusBadRequest)
 		return
 	}
@@ -314,8 +313,6 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "user")
 	session.Values["id"] = -1
 	session.Save(r, w)
-
-	log.Info("log out!")
 
 	fmt.Fprintf(w, "Good")
 }
@@ -345,7 +342,7 @@ func init() {
 	csvfile, err := os.Open(DATA_DIR + "/users.txt")
 
 	if err != nil {
-		log.Fatal("Error reading users")
+		log.Fatal("Error opening users file: %v", err)
 		return
 	}
 	defer csvfile.Close()
@@ -356,7 +353,7 @@ func init() {
 	csvData, err := reader.ReadAll()
 
 	if err != nil {
-		log.Fatal("Error reading users")
+		log.Fatal("Error reading users file: %v", err)
 		return
 	}
 
@@ -391,7 +388,7 @@ func main() {
 	log.Notice("Listening on %s", listen)
 	err := http.ListenAndServe(listen, nil)
 	if err != nil {
-		log.Fatal("Web server (HTTP): ", err)
+		log.Fatal("Web server (HTTP): %v", err)
 	}
 
 	//go func() {
