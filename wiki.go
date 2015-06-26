@@ -20,12 +20,19 @@ import (
 	"os"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
 
 const (
 	DATA_DIR = "data"
+)
+
+const (
+	Admin = 1 << iota
+	Verified
+	Unverified
 )
 
 var (
@@ -43,7 +50,17 @@ var (
 
 type User struct {
 	Id, Email, Name string
+	Role            int
 	Password        []byte
+}
+
+type Article struct {
+	Title, Body string
+}
+
+type WikiData struct {
+	User    User
+	Article Article
 }
 
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,17 +85,18 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	if data, ok := session.Values["id"]; ok {
 		if userId, ok := data.(string); ok {
 			if user, ok := users[userId]; ok {
-				var _ = user
-				vars := mux.Vars(r)
-				title := vars["title"]
+				if isUserAllowed(user) {
+					vars := mux.Vars(r)
+					title := vars["title"]
 
-				switch r.Method {
-				case "GET":
-					GetArticle(w, r, title)
-					return
-				case "PUT":
-					UpdateArticle(w, r, title)
-					return
+					switch r.Method {
+					case "GET":
+						GetArticle(w, r, title, user)
+						return
+					case "PUT":
+						UpdateArticle(w, r, title)
+						return
+					}
 				}
 			}
 		}
@@ -88,7 +106,11 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
+func isUserAllowed(user User) bool {
+	return user.Role != Unverified
+}
+
+func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User) {
 	format := r.Form.Get("format")
 
 	fileName := fmt.Sprintf("%s/articles/%s.txt", DATA_DIR, title)
@@ -98,16 +120,27 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
 		return
 	}
 
+	wiki_data := WikiData{User: user}
 	switch format {
 	case "markdown":
-		fmt.Fprintf(w, string(body))
+		wiki_data.Article = Article{Title: title, Body: string(body)}
 	case "html":
 		processedBody := processMarkdown(body)
 		safe := renderMarkdown(processedBody)
-		fmt.Fprintf(w, string(safe))
+
+		wiki_data.Article = Article{Title: title, Body: string(safe)}
 	default:
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	json_resp, err := json.Marshal(wiki_data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, string(json_resp))
 }
 
 func processMarkdown(text []byte) []byte {
@@ -267,8 +300,8 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := User{genUUID(), incomingUser.Email, incomingUser.Name, hashedPassword}
-	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s,%s\n", user.Id, user.Email, user.Name, user.Password))
+	user := User{genUUID(), incomingUser.Email, incomingUser.Name, Unverified, hashedPassword}
+	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s,%d,%s\n", user.Id, user.Email, user.Name, user.Role, user.Password))
 	if err != nil {
 		log.Error("Couldn't write to users file: %v", err)
 		http.Error(w, "Couldn't write to users file", http.StatusInternalServerError)
@@ -365,9 +398,20 @@ func init() {
 			panic(err)
 		}
 
-		if len(user) == 4 {
-			users[user[0]] = User{user[0], user[1], user[2], []byte(user[3])}
-			users[user[1]] = User{user[0], user[1], user[2], []byte(user[3])}
+		if len(user) == 5 {
+			role, err := strconv.Atoi(user[3])
+			if err != nil {
+				panic(err)
+			}
+
+			u := User{user[0],
+				user[1],
+				user[2],
+				role,
+				[]byte(user[4])}
+
+			users[user[0]] = u
+			users[user[1]] = u
 		} else {
 			log.Error("Invalid row in csv file: %v", user)
 		}

@@ -72,6 +72,11 @@ h2.title, h2.title > a {
     color: #000;
 }
 
+.title > a.edit {
+    font-size: 10pt;
+    color: #FFF;
+}
+
 /* angular-loading-bar */
 #loading-bar .bar {
   background: #2c3e50;
