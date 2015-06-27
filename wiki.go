@@ -119,6 +119,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 	fileName := fmt.Sprintf("%s/articles/%s.txt", DATA_DIR, title)
 	body, err := ioutil.ReadFile(fileName)
 	if err != nil {
+		log.Debug("Couldn't find article: %v", err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -139,6 +140,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 
 	json_resp, err := json.Marshal(wiki_data)
 	if err != nil {
+		log.Debug("Couldn't marshal json response: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -206,6 +208,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	err := decoder.Decode(&article)
 
 	if err != nil {
+		log.Debug("Couldn't decode incoming article: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -216,7 +219,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 
 	if err != nil {
 		log.Error("Error saving article: %s", err)
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -238,7 +241,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 
 	if err != nil {
 		log.Error("Error saving archive: %s", err)
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
@@ -249,7 +252,7 @@ func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArtic
 
 	if err != nil {
 		log.Error("Error saving metadata: %s", err)
-		http.Error(w, err.Error(), 500)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -280,11 +283,13 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&incomingUser)
 
 	if err != nil {
+		log.Debug("Couldn't decode register request: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if _, ok := users[incomingUser.Email]; ok {
+		log.Debug("Couldn't create account, user already exists: %v", err)
 		http.Error(w, "User already exists", http.StatusBadRequest)
 		return
 	}
@@ -324,6 +329,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&incomingUser)
 
 	if err != nil {
+		log.Debug("Couldn't decode login request: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -336,10 +342,12 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 			session.Save(r, w)
 			fmt.Fprintf(w, "Good")
 		} else {
+			log.Debug("Invalid password during login: %v", err)
 			http.Error(w, "Invalid email or password", http.StatusBadRequest)
 			return
 		}
 	} else {
+		log.Debug("Invalid email during login: %v", err)
 		http.Error(w, "Invalid email or password", http.StatusBadRequest)
 		return
 	}
@@ -357,9 +365,11 @@ type Config struct {
 	Address   string
 	Port      int
 	EnableSSL bool
+	LogLevel  string
 }
 
 func init() {
+	// read config file
 	configData, err := ioutil.ReadFile("config.toml")
 	if err != nil {
 		panic(fmt.Sprintf("Error reading config file: %v", err))
@@ -371,7 +381,14 @@ func init() {
 
 	// setup logging
 	backend := logging.NewLogBackend(os.Stderr, "", 0)
-	backendFormatter := logging.NewBackendFormatter(backend, logFormat)
+	backendLeveled := logging.AddModuleLevel(backend)
+	level, err := logging.LogLevel(conf.LogLevel)
+	if err != nil {
+		panic(err.Error())
+	}
+	backendLeveled.SetLevel(level, "")
+
+	backendFormatter := logging.NewBackendFormatter(backendLeveled, logFormat)
 	logging.SetBackend(backendFormatter)
 
 	articleDir, err := ioutil.ReadDir(DATA_DIR + "/articles")
@@ -401,8 +418,6 @@ func init() {
 
 	reader := csv.NewReader(csvfile)
 	reader.FieldsPerRecord = -1
-
-	//csvData, err := reader.ReadAll()
 
 	for {
 		user, err := reader.Read()
@@ -459,9 +474,25 @@ func main() {
 	http.Handle("/", r)
 
 	if conf.EnableSSL {
-		go http.ListenAndServeTLS(fmt.Sprintf("%s:%d", conf.Address, "443"), "cert.pem", "key.pem", nil)
-		http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Address, conf.Port), http.HandlerFunc(redirToHttps))
+		log.Info("Listening on :%d", conf.Port)
+		go func() {
+			httpsAddress := fmt.Sprintf("%s:%d", conf.Address, "443")
+			err := http.ListenAndServeTLS(httpsAddress, "cert.pem", "key.pem", nil)
+			if err != nil {
+				panic(fmt.Sprintf("Failed to start server: %v", err))
+			}
+		}()
+
+		httpAddress := fmt.Sprintf("%s:%d", conf.Address, conf.Port)
+		err := http.ListenAndServe(httpAddress, http.HandlerFunc(redirToHttps))
+		if err != nil {
+			panic(fmt.Sprintf("Failed to start server: %v", err))
+		}
 	} else {
-		http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Address, conf.Port), r)
+		log.Info("Listening on :%d", conf.Port)
+		err := http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Address, conf.Port), r)
+		if err != nil {
+			panic(fmt.Sprintf("Failed to start server: %v", err))
+		}
 	}
 }
