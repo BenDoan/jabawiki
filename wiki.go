@@ -7,6 +7,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/microcosm-cc/bluemonday"
@@ -46,6 +47,8 @@ var (
 	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:2006-01-02 15:04:05} %{level:.4s}%{color:reset} %{message}")
 
 	store = sessions.NewCookieStore([]byte("xxxxsecret"))
+
+	conf Config
 )
 
 type User struct {
@@ -350,7 +353,22 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Good")
 }
 
+type Config struct {
+	Address   string
+	Port      int
+	EnableSSL bool
+}
+
 func init() {
+	configData, err := ioutil.ReadFile("config.toml")
+	if err != nil {
+		panic(fmt.Sprintf("Error reading config file: %v", err))
+	}
+
+	if _, err := toml.Decode(string(configData), &conf); err != nil {
+		panic(fmt.Sprintf("Error parsing config file: %v", err))
+	}
+
 	// setup logging
 	backend := logging.NewLogBackend(os.Stderr, "", 0)
 	backendFormatter := logging.NewBackendFormatter(backend, logFormat)
@@ -418,6 +436,10 @@ func init() {
 	}
 }
 
+func redirToHttps(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "https://localhost", 301)
+}
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -436,22 +458,10 @@ func main() {
 
 	http.Handle("/", r)
 
-	log.Notice("Listening on %s", listen)
-	err := http.ListenAndServe(listen, nil)
-	if err != nil {
-		log.Fatal("Web server (HTTP): %v", err)
+	if conf.EnableSSL {
+		go http.ListenAndServeTLS(fmt.Sprintf("%s:%d", conf.Address, "443"), "cert.pem", "key.pem", nil)
+		http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Address, conf.Port), http.HandlerFunc(redirToHttps))
+	} else {
+		http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Address, conf.Port), r)
 	}
-
-	//go func() {
-	//err := http.ListenAndServe(":80", http.RedirectHandler("https://localhost", http.StatusFound))
-	//if err != nil {
-	//panic("Error: " + err.Error())
-	//}
-	//}()
-
-	//log.Info("Serving https")
-	//err := http.ListenAndServeTLS(listen, "flainted.cert.pem", "flainted.key.pem", nil)
-	//if err != nil {
-	//log.Fatal("Web server (HTTPS): ", err)
-	//}
 }
