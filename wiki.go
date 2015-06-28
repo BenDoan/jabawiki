@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/csv"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/gorilla/mux"
@@ -25,6 +26,15 @@ import (
 	"strings"
 	"time"
 )
+
+var configFile = flag.String("config-file", "config.toml", "A toml formatted config file")
+
+type Config struct {
+	Domain    string
+	Port      int
+	EnableSSL bool
+	LogLevel  string
+}
 
 const (
 	DATA_DIR = "data"
@@ -66,6 +76,16 @@ type WikiData struct {
 	Article Article
 }
 
+type IncomingArticle struct {
+	Title   string
+	Body    string
+	Summary string
+}
+
+type IncomingUser struct {
+	Email, Name, Password string
+}
+
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
 	err := templates.ExecuteTemplate(w, "base.html", nil)
 	if err != nil {
@@ -105,6 +125,7 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	log.Debug("Access not authorized")
 	http.Error(w, "Not allowed", http.StatusUnauthorized)
 	return
 }
@@ -196,12 +217,6 @@ func renderMarkdown(body []byte) []byte {
 	return safe
 }
 
-type IncomingArticle struct {
-	Title   string
-	Body    string
-	Summary string
-}
-
 func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	decoder := json.NewDecoder(r.Body)
 	var article IncomingArticle
@@ -273,10 +288,6 @@ func genUUID() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:])
 }
 
-type IncomingUser struct {
-	Email, Name, Password string
-}
-
 func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var incomingUser IncomingUser
@@ -289,7 +300,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if _, ok := users[incomingUser.Email]; ok {
-		log.Debug("Couldn't create account, user already exists: %v", err)
+		log.Debug("Couldn't create account, user: %s already exists", incomingUser.Email)
 		http.Error(w, "User already exists", http.StatusBadRequest)
 		return
 	}
@@ -342,12 +353,12 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 			session.Save(r, w)
 			fmt.Fprintf(w, "Good")
 		} else {
-			log.Debug("Invalid password during login: %v", err)
+			log.Debug("Invalid password during login")
 			http.Error(w, "Invalid email or password", http.StatusBadRequest)
 			return
 		}
 	} else {
-		log.Debug("Invalid email during login: %v", err)
+		log.Debug("Invalid email during login")
 		http.Error(w, "Invalid email or password", http.StatusBadRequest)
 		return
 	}
@@ -361,16 +372,11 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Good")
 }
 
-type Config struct {
-	Address   string
-	Port      int
-	EnableSSL bool
-	LogLevel  string
-}
-
 func init() {
+	flag.Parse()
+
 	// read config file
-	configData, err := ioutil.ReadFile("config.toml")
+	configData, err := ioutil.ReadFile(*configFile)
 	if err != nil {
 		panic(fmt.Sprintf("Error reading config file: %v", err))
 	}
@@ -452,7 +458,7 @@ func init() {
 }
 
 func redirToHttps(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "https://localhost", 301)
+	http.Redirect(w, r, "https://"+conf.Domain, 301)
 }
 
 func main() {
@@ -474,23 +480,24 @@ func main() {
 	http.Handle("/", r)
 
 	if conf.EnableSSL {
-		log.Info("Listening on :%d", conf.Port)
 		go func() {
-			httpsAddress := fmt.Sprintf("%s:%d", conf.Address, "443")
+			log.Notice("Listening on :443")
+			httpsAddress := fmt.Sprintf("%s:%d", conf.Domain, 443)
 			err := http.ListenAndServeTLS(httpsAddress, "cert.pem", "key.pem", nil)
 			if err != nil {
 				panic(fmt.Sprintf("Failed to start server: %v", err))
 			}
 		}()
 
-		httpAddress := fmt.Sprintf("%s:%d", conf.Address, conf.Port)
+		log.Notice("Listening on :%d", conf.Port)
+		httpAddress := fmt.Sprintf("%s:%d", conf.Domain, conf.Port)
 		err := http.ListenAndServe(httpAddress, http.HandlerFunc(redirToHttps))
 		if err != nil {
 			panic(fmt.Sprintf("Failed to start server: %v", err))
 		}
 	} else {
-		log.Info("Listening on :%d", conf.Port)
-		err := http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Address, conf.Port), r)
+		log.Notice("Listening on :%d", conf.Port)
+		err := http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Domain, conf.Port), r)
 		if err != nil {
 			panic(fmt.Sprintf("Failed to start server: %v", err))
 		}
