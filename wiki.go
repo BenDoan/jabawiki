@@ -15,7 +15,6 @@ import (
 	"github.com/op/go-logging"
 	"github.com/russross/blackfriday"
 	"golang.org/x/crypto/bcrypt"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -49,9 +48,9 @@ const (
 var (
 	listen = ":8080"
 
-	templates = template.Must(template.ParseFiles("templates/base.html"))
-	articles  = map[string]bool{}
-	users     = map[string]User{}
+	baseTemplate = ""
+	articles     = map[string]bool{}
+	users        = map[string]User{}
 
 	log       = logging.MustGetLogger("wiki")
 	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:2006-01-02 15:04:05} %{level:.4s}%{color:reset} %{message}")
@@ -87,11 +86,7 @@ type IncomingUser struct {
 }
 
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
-	err := templates.ExecuteTemplate(w, "base.html", nil)
-	if err != nil {
-		log.Error("Couldn't send base template: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	fmt.Fprintf(w, baseTemplate)
 }
 
 func HandleArticle(w http.ResponseWriter, r *http.Request) {
@@ -403,6 +398,14 @@ func init() {
 		log.Fatal("Error reading articles: %v", err)
 		panic(err)
 	}
+
+	// load base template
+	baseTemplateBytes, err := ioutil.ReadFile("templates/base.html")
+	if err != nil {
+		log.Fatal("Error reading base template: %v", err)
+		panic(err)
+	}
+	baseTemplate = string(baseTemplateBytes)
 
 	// populate articles cache
 	for _, file := range articleDir {

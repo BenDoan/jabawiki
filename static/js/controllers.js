@@ -1,3 +1,11 @@
+app.controller("titleCtrl", ['$scope',
+                                   '$routeParams',
+                                   '$location',
+                                   'ArticleFactory',
+    function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+        $scope.title = "Wiki";
+    }]);
+
 app.controller("ArticleViewCtrl", ['$scope',
                                    '$routeParams',
                                    '$location',
