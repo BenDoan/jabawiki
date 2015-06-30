@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/BurntSushi/toml"
@@ -58,12 +59,14 @@ var (
 	store = sessions.NewCookieStore([]byte("xxxxsecret"))
 
 	conf Config
+
+	errUserNotFound = errors.New("User not found in session")
 )
 
 type User struct {
 	Id, Email, Name string
 	Role            int
-	Password        []byte
+	Password        []byte `json:"-"`
 }
 
 type Article struct {
@@ -367,6 +370,39 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Good")
 }
 
+func getUserFromSession(r *http.Request) (User, error) {
+	session, err := store.Get(r, "user")
+	if err != nil {
+		log.Debug("Couldn't find user: %v", err)
+		return User{}, err
+	}
+
+	if data, ok := session.Values["id"]; ok {
+		if userId, ok := data.(string); ok {
+			if user, ok := users[userId]; ok {
+				return user, nil
+			}
+		}
+	}
+
+	return User{}, errUserNotFound
+}
+
+func HandleUserGet(w http.ResponseWriter, r *http.Request) {
+	user, err := getUserFromSession(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userJson, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+	}
+
+	fmt.Fprintf(w, string(userJson))
+}
+
 func init() {
 	flag.Parse()
 
@@ -474,6 +510,7 @@ func main() {
 	r.HandleFunc("/user/register", HandleRegister)
 	r.HandleFunc("/user/login", HandleLogin)
 	r.HandleFunc("/user/logout", HandleLogout)
+	r.HandleFunc("/user/get", HandleUserGet)
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	r.PathPrefix("/partials/").Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))
