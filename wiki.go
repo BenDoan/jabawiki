@@ -143,21 +143,21 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 		return
 	}
 
-	wiki_data := WikiData{User: user}
+	article := Article{Title: title}
 	switch format {
 	case "markdown":
-		wiki_data.Article = Article{Title: title, Body: string(body)}
+		article.Body = string(body)
 	case "html":
-		processedBody := processMarkdown(body)
-		safe := renderMarkdown(processedBody)
+		processedMarkdown := processMarkdown(body)
+		safeHtml := renderMarkdown(processedMarkdown)
 
-		wiki_data.Article = Article{Title: title, Body: string(safe)}
+		article.Body = string(safeHtml)
 	default:
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	json_resp, err := json.Marshal(wiki_data)
+	json_resp, err := json.Marshal(article)
 	if err != nil {
 		log.Debug("Couldn't marshal json response: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -1,0 +1,19 @@
+Profile!
+<ul>
+    <li>{{ user.Name }}</li>
+    <li>{{ user.Email }}</li>
+    <li>{{ user.Role }}</li>
+</ul>
+<div class="row">
+    <h2>Login</h2>
+    <form class="col-xs-4 col-sm-4 col-md-4">
+        <label for="email">Email</label>
+        <input ng-model="email" class="form-control" type="email" name="email" >
+
+        <label for="password">Password</label>
+        <input ng-model="password" type="password" name="password" class="form-control">
+
+        <br>
+        <button class="btn btn-primary" ng-click="login()">Login</button>
+    </form>
+</div>

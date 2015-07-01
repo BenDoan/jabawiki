@@ -17,6 +17,10 @@ var app = angular.module('wiki', ['ngRoute', 'angular-loading-bar']).
                 templateUrl: 'partials/view.html',
                 controller: 'ArticleViewCtrl'
             }).
+            when('/profile', {
+                templateUrl: 'partials/profile.html',
+                controller: 'ProfileCtrl'
+            }).
             otherwise({
                 redirectTo: '/'
             });

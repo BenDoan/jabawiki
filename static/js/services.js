@@ -44,5 +44,12 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
         })
     };
 
+    exports.getUser = function(){
+        return $http({
+            method: 'POST',
+            url: '/user/get'
+        })
+    };
+
     return exports;
 }]);

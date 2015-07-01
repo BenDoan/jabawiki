@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="wiki" ng-controller="titleCtrl">
+<html lang="en" ng-app="wiki" ng-controller="MasterCtrl">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,6 +19,8 @@
     <body>
         <div class="container">
             <div class="row">
+                <div ng-if="error" class="alert alert-{{ error[1] }}">{{ error[0] }}</div>
+
                 <a href="/">Home</a>
                 <div ng-view></div>
             </div>

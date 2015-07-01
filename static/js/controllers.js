@@ -1,9 +1,19 @@
-app.controller("titleCtrl", ['$scope',
+app.controller("MasterCtrl", ['$scope',
                                    '$routeParams',
                                    '$location',
+                                   '$sce',
+                                   '$timeout',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
         $scope.title = "Wiki";
+        ArticleFactory.getUser().
+            success(function(data, status, headers, config){
+                console.log("user is: " + data)
+                $scope.user = data
+            }).
+            error(function(data, status, headers, config){
+                console.log("Error fetching user")
+            });
     }]);
 
 app.controller("ArticleViewCtrl", ['$scope',
@@ -18,10 +28,9 @@ app.controller("ArticleViewCtrl", ['$scope',
 
         ArticleFactory.getArticle('html', title).
             success(function(data, status, headers, config) {
-                $scope.user = data.User
                 $scope.article = {
                     title: title,
-                    body: data.Article.Body
+                    body: data.Body
                 }
             }).
             error(function(data, status, headers, config) {
@@ -131,4 +140,13 @@ app.controller("LoginCtrl", ['$scope',
                     $scope.error = [data, "danger"];
                 });
         };
+    }]);
+
+app.controller("ProfileCtrl", ['$scope',
+                                   '$routeParams',
+                                   '$location',
+                                   '$sce',
+                                   '$timeout',
+                                   'ArticleFactory',
+    function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
     }]);
