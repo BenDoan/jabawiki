@@ -8,12 +8,26 @@ app.controller("MasterCtrl", ['$scope',
         $scope.title = "Wiki";
         ArticleFactory.getUser().
             success(function(data, status, headers, config){
-                console.log("user is: " + data)
                 $scope.user = data
             }).
             error(function(data, status, headers, config){
                 console.log("Error fetching user")
             });
+
+        $scope.logoutUser = function(){
+            ArticleFactory.logoutUser().
+                success(function(data){
+                    console.log("Logout succeeded")
+                    $scope.user = {};
+                }).
+                error(function(data){
+                    console.log("Logout failed")
+                });
+            $timeout(function(){
+
+                $location.path('/');
+            }, 500);
+        }
     }]);
 
 app.controller("ArticleViewCtrl", ['$scope',
@@ -45,19 +59,6 @@ app.controller("ArticleViewCtrl", ['$scope',
             return $sce.trustAsHtml($scope.article.body);
         }
 
-        $scope.logoutUser = function(){
-            ArticleFactory.logoutUser().
-                success(function(data){
-                    console.log("Logout succeeded")
-                }).
-                error(function(data){
-                    console.log("Logout failed")
-                });
-            $timeout(function(){
-
-                $location.path('/');
-            }, 500);
-        }
 
 }]);
 
@@ -72,11 +73,10 @@ app.controller('ArticleEditCtrl', ['$scope',
 
         ArticleFactory.getArticle('markdown', title).
             success(function(data, status, headers, config) {
-                $scope.user = data.User
                 $scope.article = {
                     title: title,
                     summary: "",
-                    body: data.Article.Body
+                    body: data.Body
                 }
             }).
             error(function(data, status, headers, config) {
@@ -86,6 +86,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                     summary: "",
                     body: ""
                 }
+
             });
 
         $scope.update = function(article){
