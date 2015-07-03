@@ -22,7 +22,11 @@
                 <div ng-if="error" class="alert alert-{{ error[1] }}">{{ error[0] }}</div>
 
                 <a href="/">Home</a>
+
                 <div ng-view></div>
+
+                <a ng-if="!user" href="/login">login</a>
+                <a ng-if="user" href="" ng-click="logoutUser()">logout</a>
             </div>
         </div> <!-- /container -->
 
