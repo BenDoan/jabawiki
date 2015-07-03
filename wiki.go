@@ -397,10 +397,35 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 
 	userJson, err := json.Marshal(user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	fmt.Fprintf(w, string(userJson))
+}
+
+func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
+	files, err := ioutil.ReadDir(DATA_DIR + "/articles")
+
+	if err != nil {
+		log.Error("Couldn't get articles", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	var articleNames = []string{}
+	for _, file := range files {
+		if !strings.HasPrefix(file.Name(), ".") {
+			articleNames = append(articleNames, file.Name()[0:len(file.Name())-4])
+		}
+	}
+
+	articlesJson, err := json.Marshal(articleNames)
+	if err != nil {
+		log.Error("Couldn't marshal article list to json: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	fmt.Fprintf(w, string(articlesJson))
 }
 
 func init() {
@@ -506,6 +531,8 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", BaseHandler)
 	r.HandleFunc("/article/{title}", HandleArticle)
+
+	r.HandleFunc("/articles/all", HandleGetAllArticles)
 
 	r.HandleFunc("/user/register", HandleRegister)
 	r.HandleFunc("/user/login", HandleLogin)
