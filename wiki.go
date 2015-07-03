@@ -169,7 +169,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 
 func processMarkdown(text []byte) []byte {
 	// create wiki links
-	pattern := regexp.MustCompile(`\[\[([a-zA-z0-9_]+)\]\]`)
+	pattern := regexp.MustCompile(`\[\[\s*([a-zA-Z0-9_]+)\s*\]\]`)
 	newBody := pattern.ReplaceAllStringFunc(string(text), func(str string) string {
 		articleName := str[2 : len(str)-2] //remove brackets
 		if articles[articleName] {
