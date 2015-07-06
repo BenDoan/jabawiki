@@ -89,7 +89,7 @@ type IncomingUser struct {
 }
 
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, baseTemplate)
+	fmt.Fprint(w, baseTemplate)
 }
 
 func HandleArticle(w http.ResponseWriter, r *http.Request) {
@@ -144,18 +144,22 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 	}
 
 	article := Article{Title: title}
+	fmt.Printf("1Text is %s\n\n===========================\n\n\n\n\n", string(body))
 	switch format {
 	case "markdown":
 		article.Body = string(body)
 	case "html":
 		processedMarkdown := processMarkdown(body)
+		fmt.Printf("2Text is %s\n\n\n", string(processedMarkdown))
 		safeHtml := renderMarkdown(processedMarkdown)
+		fmt.Printf("3Text is %s\n\n=========================\n\n\n", string(safeHtml))
 
 		article.Body = string(safeHtml)
 	default:
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	fmt.Printf("4Text is %s\n\n\n\n======================\n\n\n", string(article.Body))
 
 	json_resp, err := json.Marshal(article)
 	if err != nil {
@@ -164,7 +168,8 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 		return
 	}
 
-	fmt.Fprintf(w, string(json_resp))
+	fmt.Printf("5Text is %s\n\n\n========================\n\n\n", string(json_resp))
+	fmt.Fprint(w, string(json_resp))
 }
 
 func processMarkdown(text []byte) []byte {
@@ -271,7 +276,7 @@ func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArtic
 	}
 
 	metadata := fmt.Sprintf("%d | %s | %s\n", time.Now().Unix(), r.RemoteAddr, article.Summary)
-	fmt.Fprintf(metadataFile, metadata)
+	fmt.Fprint(metadataFile, metadata)
 }
 
 func genUUID() string {
@@ -329,7 +334,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	// allow user to be looked up by id or email
 	users[user.Id] = user
 	users[user.Email] = user
-	fmt.Fprintf(w, "Good")
+	fmt.Fprint(w, "Good")
 }
 
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
@@ -350,7 +355,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 			session, _ := store.Get(r, "user")
 			session.Values["id"] = storedUser.Id
 			session.Save(r, w)
-			fmt.Fprintf(w, "Good")
+			fmt.Fprint(w, "Good")
 		} else {
 			log.Debug("Invalid password during login")
 			http.Error(w, "Invalid email or password", http.StatusBadRequest)
@@ -368,7 +373,7 @@ func HandleLogout(w http.ResponseWriter, r *http.Request) {
 	session.Values["id"] = -1
 	session.Save(r, w)
 
-	fmt.Fprintf(w, "Good")
+	fmt.Fprint(w, "Good")
 }
 
 func getUserFromSession(r *http.Request) (User, error) {
@@ -402,7 +407,7 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, string(userJson))
+	fmt.Fprint(w, string(userJson))
 }
 
 func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
@@ -426,7 +431,7 @@ func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	fmt.Fprintf(w, string(articlesJson))
+	fmt.Fprint(w, string(articlesJson))
 }
 
 func init() {
