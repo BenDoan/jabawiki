@@ -51,5 +51,12 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
         })
     };
 
+    exports.getAllArticles = function(){
+        return $http({
+            method: 'POST',
+            url: '/articles/all'
+        })
+    };
+
     return exports;
 }]);

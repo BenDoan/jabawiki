@@ -1,5 +1,3 @@
-this is the index
-<br/>
-{{ name }}
-<br/>
-{{ articles }}
+<ul class="well">
+    <li ng-repeat="article in articles"><a href="/w/{{ article }}">{{ article }}</a></li>
+</ul>

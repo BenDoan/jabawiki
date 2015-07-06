@@ -151,3 +151,20 @@ app.controller("ProfileCtrl", ['$scope',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
     }]);
+
+app.controller("IndexCtrl", ['$scope',
+                                   '$routeParams',
+                                   '$location',
+                                   '$sce',
+                                   '$timeout',
+                                   'ArticleFactory',
+    function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+            ArticleFactory.getAllArticles().
+                success(function(data, status, headers, config) {
+                    $scope.articles = data
+                }).
+                error(function(data, status, headers, config) {
+                    $scope.error = ["Couldn't get article listing", "danger"];
+                });
+
+    }]);
