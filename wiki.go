@@ -144,22 +144,18 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 	}
 
 	article := Article{Title: title}
-	fmt.Printf("1Text is %s\n\n===========================\n\n\n\n\n", string(body))
 	switch format {
 	case "markdown":
 		article.Body = string(body)
 	case "html":
 		processedMarkdown := processMarkdown(body)
-		fmt.Printf("2Text is %s\n\n\n", string(processedMarkdown))
 		safeHtml := renderMarkdown(processedMarkdown)
-		fmt.Printf("3Text is %s\n\n=========================\n\n\n", string(safeHtml))
 
 		article.Body = string(safeHtml)
 	default:
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("4Text is %s\n\n\n\n======================\n\n\n", string(article.Body))
 
 	json_resp, err := json.Marshal(article)
 	if err != nil {
@@ -168,7 +164,6 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 		return
 	}
 
-	fmt.Printf("5Text is %s\n\n\n========================\n\n\n", string(json_resp))
 	fmt.Fprint(w, string(json_resp))
 }
 
@@ -191,7 +186,7 @@ func processMarkdown(text []byte) []byte {
 func renderMarkdown(body []byte) []byte {
 	htmlFlags := 0 |
 		blackfriday.HTML_USE_SMARTYPANTS |
-		blackfriday.HTML_SMARTYPANTS_FRACTIONS |
+		//blackfriday.HTML_SMARTYPANTS_FRACTIONS |
 		//TODO: need to add class to generated html
 		//blackfriday.HTML_TOC |
 		blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
