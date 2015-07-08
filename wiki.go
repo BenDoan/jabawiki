@@ -173,10 +173,11 @@ func processMarkdown(text []byte) []byte {
 	pattern := regexp.MustCompile(`\[\[[a-zA-Z0-9_]+\]\]`)
 	newBody := pattern.ReplaceAllStringFunc(string(text), func(str string) string {
 		articleName := str[2 : len(str)-2] //remove brackets
+		spacedArticleName := strings.Replace(articleName, "_", " ", -1)
 		if articles[articleName] {
-			return fmt.Sprintf(`<a href="/w/%s">%s</a>`, articleName, articleName)
+			return fmt.Sprintf(`<a href="/w/%s">%s</a>`, articleName, spacedArticleName)
 		} else {
-			return fmt.Sprintf(`<a class="wikilink-new" href="/w/%s">%s</a>`, articleName, articleName)
+			return fmt.Sprintf(`<a class="wikilink-new" href="/w/%s">%s</a>`, articleName, spacedArticleName)
 		}
 	})
 

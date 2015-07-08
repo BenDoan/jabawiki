@@ -38,7 +38,9 @@ app.controller("ArticleViewCtrl", ['$scope',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
         title = $routeParams.title;
-        $scope.article = {}
+        $scope.display_title = title.replace(/_/g, " ");
+
+        $scope.article = {};
 
         ArticleFactory.getArticle('html', title).
             success(function(data, status, headers, config) {

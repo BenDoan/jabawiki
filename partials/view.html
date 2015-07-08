@@ -1,7 +1,7 @@
 <span class="pull-right"><a href="/profile">{{ user.Name }}</a></span>
 <div class="row">
     <h2 class="title">
-        <a href="/{{ article.title }}">{{ article.title }}
+        <a class="title" href="/{{ article.title }}">{{ display_title }}
         <a ng-if="user" class="edit btn btn-warning btn-xs" href="/w/{{ article.title }}/edit">Edit</a></a>
     </h2>
     <div ng-if="error" class="alert alert-{{ error[1] }}">{{ error[0] }}</div>
