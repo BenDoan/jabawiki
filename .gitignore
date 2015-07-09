@@ -43,3 +43,7 @@ data/archive/*
 !data/archive/.gitignore
 
 tls
+cert*pem
+key*pem
+
+dev-config.toml

@@ -430,6 +430,31 @@ func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(articlesJson))
 }
 
+func HandleGetPreview(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var article IncomingArticle
+	err := decoder.Decode(&article)
+
+	if err != nil {
+		log.Debug("Couldn't decode incoming article: %v", err)
+		http.Error(w, "Couldn't decode incoming article", http.StatusBadRequest)
+		return
+	}
+
+	processedMarkdown := processMarkdown([]byte(article.Body))
+	safeHtml := renderMarkdown(processedMarkdown)
+
+	outArticle := Article{Title: article.Title, Body: string(safeHtml)}
+
+	articlesJson, err := json.Marshal(outArticle)
+	if err != nil {
+		log.Error("Couldn't marshal article list to json: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	fmt.Fprint(w, string(articlesJson))
+}
+
 func init() {
 	flag.Parse()
 
@@ -535,6 +560,7 @@ func main() {
 	r.HandleFunc("/article/{title}", HandleArticle)
 
 	r.HandleFunc("/articles/all", HandleGetAllArticles)
+	r.HandleFunc("/articles/preview", HandleGetPreview)
 
 	r.HandleFunc("/user/register", HandleRegister)
 	r.HandleFunc("/user/login", HandleLogin)
