@@ -480,23 +480,18 @@ func init() {
 	}
 
 	// setup logging
-	backend := logging.NewLogBackend(os.Stderr, "", 0)
-	backendLeveled := logging.AddModuleLevel(backend)
-	level, err := logging.LogLevel(conf.LogLevel)
+	log_level, err := logging.LogLevel(conf.LogLevel)
 	if err != nil {
 		panic(err.Error())
 	}
-	backendLeveled.SetLevel(level, "")
 
-	backendFormatter := logging.NewBackendFormatter(backendLeveled, logFormat)
-	logging.SetBackend(backendFormatter)
+	backend := logging.NewLogBackend(os.Stderr, "", 0)
+	backendFormatter := logging.NewBackendFormatter(backend, logFormat)
 
-	articleDir, err := ioutil.ReadDir(DATA_DIR + "/articles")
+	backendLeveled := logging.AddModuleLevel(backend)
+	backendLeveled.SetLevel(log_level, "")
 
-	if err != nil {
-		log.Fatal("Error reading articles: %v", err)
-		panic(err)
-	}
+	logging.SetBackend(backendLeveled, backendFormatter)
 
 	// load base template
 	baseTemplateBytes, err := ioutil.ReadFile("templates/base.html")
@@ -507,6 +502,13 @@ func init() {
 	baseTemplate = string(baseTemplateBytes)
 
 	// populate articles cache
+	articleDir, err := ioutil.ReadDir(DATA_DIR + "/articles")
+
+	if err != nil {
+		log.Fatal("Error reading articles: %v", err)
+		panic(err)
+	}
+
 	for _, file := range articleDir {
 		if !file.IsDir() {
 			articleName := strings.Split(file.Name(), ".")[0]
@@ -514,7 +516,7 @@ func init() {
 		}
 	}
 
-	// populate users
+	// populate users cache
 	csvfile, err := os.Open(DATA_DIR + "/users.txt")
 
 	if err != nil {
