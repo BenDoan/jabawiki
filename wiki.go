@@ -37,7 +37,8 @@ type Config struct {
 }
 
 const (
-	DATA_DIR = "data"
+	DATA_DIR                  = "data"
+	INTERNAL_SERVER_ERROR_MSG = "Internal server error"
 )
 
 const (
@@ -99,7 +100,7 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Error("Session had error: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
@@ -153,14 +154,16 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 
 		article.Body = string(safeHtml)
 	default:
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		msg := "Invalid article format"
+		log.Debug("%s: %v", msg, format)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
 	json_resp, err := json.Marshal(article)
 	if err != nil {
 		log.Debug("Couldn't marshal json response: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
@@ -223,8 +226,9 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	err := decoder.Decode(&article)
 
 	if err != nil {
-		log.Debug("Couldn't decode incoming article: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		msg := "Couldn't decode incoming article"
+		log.Debug("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
@@ -234,7 +238,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 
 	if err != nil {
 		log.Error("Error saving article: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
@@ -256,7 +260,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 
 	if err != nil {
 		log.Error("Error saving archive: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 }
@@ -267,7 +271,7 @@ func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArtic
 
 	if err != nil {
 		log.Error("Error saving metadata: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
@@ -294,28 +298,31 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&incomingUser)
 
 	if err != nil {
-		log.Debug("Couldn't decode register request: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		msg := "Couldn't decode register request data"
+		log.Debug("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
 	if _, ok := users[incomingUser.Email]; ok {
-		log.Debug("Couldn't create account, user: %s already exists", incomingUser.Email)
-		http.Error(w, "User already exists", http.StatusBadRequest)
+		msg := "Couldn't create account, user already exists"
+		log.Debug("%s: %s", msg, incomingUser.Email)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(incomingUser.Password), 10)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Error("Couldn't generate password with bcrypt: %v", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 	}
 
 	usersFile, err := os.OpenFile(DATA_DIR+"/users.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
 		log.Error("Couldn't open users file: ", err)
-		http.Error(w, "Couldn't open users file", http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
@@ -323,7 +330,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s,%d,%s\n", user.Id, user.Email, user.Name, user.Role, user.Password))
 	if err != nil {
 		log.Error("Couldn't write to users file: %v", err)
-		http.Error(w, "Couldn't write to users file", http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
@@ -340,8 +347,9 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&incomingUser)
 
 	if err != nil {
-		log.Debug("Couldn't decode login request: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		msg := "Couldn't decode login request data"
+		log.Debug("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
@@ -393,13 +401,16 @@ func getUserFromSession(r *http.Request) (User, error) {
 func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		msg := "Couldn't find user in session"
+		log.Debug("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
 	userJson, err := json.Marshal(user)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Error("Couldn't marshal user json: %v", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
@@ -411,7 +422,7 @@ func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Error("Couldn't get articles", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 	}
 
 	var articleNames = []string{}
@@ -424,7 +435,7 @@ func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
 	articlesJson, err := json.Marshal(articleNames)
 	if err != nil {
 		log.Error("Couldn't marshal article list to json: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 	}
 
 	fmt.Fprint(w, string(articlesJson))
@@ -449,7 +460,7 @@ func HandleGetPreview(w http.ResponseWriter, r *http.Request) {
 	articlesJson, err := json.Marshal(outArticle)
 	if err != nil {
 		log.Error("Couldn't marshal article list to json: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 	}
 
 	fmt.Fprint(w, string(articlesJson))
