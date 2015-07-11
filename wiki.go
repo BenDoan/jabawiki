@@ -517,11 +517,16 @@ func init() {
 	}
 
 	// populate users cache
-	csvfile, err := os.Open(DATA_DIR + "/users.txt")
+	usersFileName := DATA_DIR + "/users.txt"
+	csvfile, err := os.Open(usersFileName)
 
 	if err != nil {
-		log.Fatal("Error opening users file: %v", err)
-		panic(err)
+		if _, err := os.Stat(usersFileName); err != nil {
+			csvfile, _ = os.Create(usersFileName)
+		} else {
+			log.Fatal("Error opening users file: %v", err)
+			panic(err)
+		}
 	}
 	defer csvfile.Close()
 
