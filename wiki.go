@@ -522,7 +522,6 @@ func init() {
 	if err != nil {
 		log.Fatal("Error opening users file: %v", err)
 		panic(err)
-		return
 	}
 	defer csvfile.Close()
 

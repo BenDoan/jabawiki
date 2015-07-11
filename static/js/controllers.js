@@ -68,8 +68,9 @@ app.controller('ArticleEditCtrl', ['$scope',
                                    '$routeParams',
                                    '$location',
                                    '$window',
+                                   '$sce',
                                    'ArticleFactory',
-    function($scope, $routeParams, $location, $window, ArticleFactory){
+    function($scope, $routeParams, $location, $window, $sce, ArticleFactory){
         title = $routeParams.title;
         $scope.article = {}
 
@@ -104,6 +105,17 @@ app.controller('ArticleEditCtrl', ['$scope',
         $scope.viewArticle = function() {
             $location.path('/w/'+title);
         };
+
+        $scope.getPreview = function(article){
+            ArticleFactory.getArticlePreview(article).
+                success(function(data, status, headers, config){
+                    console.log("data is: " + data.Body)
+                    $scope.preview = $sce.trustAsHtml(data.Body);
+                }).
+                error(function(data, status, headers, config){
+                    console.log("Couldn't get article preview");
+                });
+        }
     }]);
 
 app.controller("LoginCtrl", ['$scope',

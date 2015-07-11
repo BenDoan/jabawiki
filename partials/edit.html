@@ -8,6 +8,11 @@
         <input class="form-control" type="text" ng-model="article.summary">
         <br>
         <button class="btn btn-primary" ng-click="update(article)">Submit</button>
-        <button class="btn" ng-if="article.body" ng-click="viewArticle()">Back</button>
+        <button class="btn" ng-click="getPreview(article)">Preview</button>
+        <button class="btn pull-right" ng-if="article.body" ng-click="viewArticle()">Back</button>
     </form>
+    <div ng-if="preview">
+        Preview:
+        <div class="preview-box" ng-bind-html="preview"></div>
+    </div>
 </section>

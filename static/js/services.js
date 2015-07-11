@@ -58,5 +58,13 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
         })
     };
 
+    exports.getArticlePreview = function(article){
+        return $http({
+            method: 'POST',
+            url: '/articles/preview',
+            data: article
+        })
+    };
+
     return exports;
 }]);

@@ -94,6 +94,11 @@ a.title {
     color: #FFF;
 }
 
+.preview-box {
+    border: 1px dotted red;
+    padding: 5px;
+}
+
 /* angular-loading-bar */
 #loading-bar .bar {
   background: #2c3e50;
