@@ -34,17 +34,11 @@ type Config struct {
 	Port      int
 	EnableSSL bool
 	LogLevel  string
+	DataDir   string
 }
 
 const (
-	DATA_DIR                  = "data"
 	INTERNAL_SERVER_ERROR_MSG = "Internal server error"
-)
-
-const (
-	Admin = 1 << iota
-	Verified
-	Unverified
 )
 
 var (
@@ -62,6 +56,12 @@ var (
 	conf Config
 
 	errUserNotFound = errors.New("User not found in session")
+)
+
+const (
+	Admin = 1 << iota
+	Verified
+	Unverified
 )
 
 type User struct {
@@ -136,7 +136,7 @@ func isUserAllowed(user User) bool {
 func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User) {
 	format := r.Form.Get("format")
 
-	fileName := fmt.Sprintf("%s/articles/%s.txt", DATA_DIR, title)
+	fileName := fmt.Sprintf("%s/articles/%s.txt", conf.DataDir, title)
 	body, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		log.Debug("Couldn't find article: %v", err)
@@ -233,7 +233,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	}
 
 	// write article
-	fileName := fmt.Sprintf("%s/articles/%s.txt", DATA_DIR, article.Title)
+	fileName := fmt.Sprintf("%s/articles/%s.txt", conf.DataDir, article.Title)
 	err = ioutil.WriteFile(fileName, []byte(article.Body), 0644)
 
 	if err != nil {
@@ -255,7 +255,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 	gzipWriter.Write([]byte(article.Body))
 	gzipWriter.Close()
 
-	fileName := fmt.Sprintf("%s/archive/%s.%d.txt.gz", DATA_DIR, article.Title, time.Now().Unix())
+	fileName := fmt.Sprintf("%s/archive/%s.%d.txt.gz", conf.DataDir, article.Title, time.Now().Unix())
 	err := ioutil.WriteFile(fileName, b.Bytes(), 0644)
 
 	if err != nil {
@@ -266,7 +266,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 }
 
 func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
-	fileName := fmt.Sprintf("%s/metadata/%s.meta", DATA_DIR, article.Title)
+	fileName := fmt.Sprintf("%s/metadata/%s.meta", conf.DataDir, article.Title)
 	metadataFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
@@ -318,7 +318,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 	}
 
-	usersFile, err := os.OpenFile(DATA_DIR+"/users.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+	usersFile, err := os.OpenFile(conf.DataDir+"/users.txt", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
 		log.Error("Couldn't open users file: ", err)
@@ -418,7 +418,7 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(DATA_DIR + "/articles")
+	files, err := ioutil.ReadDir(conf.DataDir + "/articles")
 
 	if err != nil {
 		log.Error("Couldn't get articles", err)
@@ -502,7 +502,7 @@ func init() {
 	baseTemplate = string(baseTemplateBytes)
 
 	// populate articles cache
-	articleDir, err := ioutil.ReadDir(DATA_DIR + "/articles")
+	articleDir, err := ioutil.ReadDir(conf.DataDir + "/articles")
 
 	if err != nil {
 		log.Fatal("Error reading articles: %v", err)
@@ -517,7 +517,7 @@ func init() {
 	}
 
 	// populate users cache
-	usersFileName := DATA_DIR + "/users.txt"
+	usersFileName := conf.DataDir + "/users.txt"
 	csvfile, err := os.Open(usersFileName)
 
 	if err != nil {
