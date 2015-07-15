@@ -29,20 +29,6 @@ tmp
 gin-bin
 jabawiki
 
-data/*
-data/articles/*
-data/metadata/*
-data/archive/*
-!data
-!data/.gitignore
-!data/articles
-!data/articles/.gitignore
-!data/metadata
-!data/metadata/.gitignore
-!data/archive
-!data/archive/.gitignore
-!data/users.txt
-
 tls
 cert*pem
 key*pem
