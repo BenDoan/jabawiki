@@ -27,7 +27,7 @@ _testmain.go
 static/lib/*
 tmp
 gin-bin
-wiki
+jabawiki
 
 data/*
 data/articles/*
@@ -41,9 +41,11 @@ data/archive/*
 !data/metadata/.gitignore
 !data/archive
 !data/archive/.gitignore
+!data/users.txt
 
 tls
 cert*pem
 key*pem
 
 dev-config.toml
+dev_data
