@@ -137,7 +137,7 @@ func isUserAllowed(user User) bool {
 func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User) {
 	format := r.Form.Get("format")
 
-	articlePath := fmt.Sprintf("%s/articles/%s.txt", conf.DataDir, title)
+	articlePath := filepath.Join(conf.DataDir, "articles", title+".txt")
 	body, err := ioutil.ReadFile(filepath.FromSlash(articlePath))
 	if err != nil {
 		log.Debug("Couldn't find article: %v", err)
@@ -234,7 +234,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	}
 
 	// write article
-	articlePath := fmt.Sprintf("%s/articles/%s.txt", conf.DataDir, article.Title)
+	articlePath := filepath.Join(conf.DataDir, "articles", article.Title+".txt")
 	err = ioutil.WriteFile(filepath.FromSlash(articlePath), []byte(article.Body), 0644)
 
 	if err != nil {
@@ -256,7 +256,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 	gzipWriter.Write([]byte(article.Body))
 	gzipWriter.Close()
 
-	archiveFilePath := fmt.Sprintf("%s/archive/%s.%d.txt.gz", conf.DataDir, article.Title, time.Now().Unix())
+	archiveFilePath := filepath.Join(conf.DataDir, "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
 	err := ioutil.WriteFile(filepath.FromSlash(archiveFilePath), b.Bytes(), 0644)
 
 	if err != nil {
@@ -267,7 +267,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 }
 
 func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
-	metadataFilePath := fmt.Sprintf("%s/metadata/%s.meta", conf.DataDir, article.Title)
+	metadataFilePath := filepath.Join(conf.DataDir, "metadata", article.Title+".meta")
 	metadataFile, err := os.OpenFile(filepath.FromSlash(metadataFilePath), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
@@ -419,7 +419,7 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(filepath.FromSlash(conf.DataDir + "/articles"))
+	files, err := ioutil.ReadDir(filepath.FromSlash(filepath.Join(conf.DataDir, "/articles")))
 
 	if err != nil {
 		log.Error("Couldn't get articles", err)
@@ -518,7 +518,7 @@ func init() {
 	}
 
 	// populate users cache
-	usersFilePath := conf.DataDir + "/users.txt"
+	usersFilePath := filepath.Join(conf.DataDir, "/users.txt")
 	csvfile, err := os.Open(filepath.FromSlash(usersFilePath))
 
 	if err != nil {
