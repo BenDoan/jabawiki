@@ -15,6 +15,8 @@ targets = (
             ("linux", "386"),
             ("linux", "amd64"),
             ("linux", "arm"),
+            ("freebsd", "386"),
+            ("freebsd", "amd64"),
             ("darwin", "386"),
             ("darwin", "amd64"),
             ("windows", "386"),
