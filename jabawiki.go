@@ -419,7 +419,7 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(filepath.FromSlash(filepath.Join(conf.DataDir, "/articles")))
+	files, err := ioutil.ReadDir(filepath.FromSlash(filepath.Join(conf.DataDir, "articles")))
 
 	if err != nil {
 		log.Error("Couldn't get articles", err)
@@ -503,7 +503,7 @@ func init() {
 	baseTemplate = string(baseTemplateBytes)
 
 	// populate articles cache
-	articleDir, err := ioutil.ReadDir(filepath.FromSlash(conf.DataDir + "/articles"))
+	articleDir, err := ioutil.ReadDir(filepath.FromSlash(conf.DataDir + "articles"))
 
 	if err != nil {
 		log.Fatal("Error reading articles: %v", err)
@@ -518,7 +518,7 @@ func init() {
 	}
 
 	// populate users cache
-	usersFilePath := filepath.Join(conf.DataDir, "/users.txt")
+	usersFilePath := filepath.Join(conf.DataDir, "users.txt")
 	csvfile, err := os.Open(filepath.FromSlash(usersFilePath))
 
 	if err != nil {
