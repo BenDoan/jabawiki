@@ -3,4 +3,5 @@ Port = 8080
 EnableSSL = false
 # Options: CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG
 LogLevel = "INFO"
+# Paths must use '/' for delimitation
 DataDir = "data"
