@@ -28,7 +28,7 @@ import (
 	"time"
 )
 
-var configFile = flag.String("config-file", "config.toml", "A toml formatted config file")
+var configFilePath = flag.String("config-file", "config.toml", "A toml formatted config file")
 
 type Config struct {
 	Domain    string
@@ -138,7 +138,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 	format := r.Form.Get("format")
 
 	articlePath := filepath.Join(conf.DataDir, "articles", title+".txt")
-	body, err := ioutil.ReadFile(filepath.FromSlash(articlePath))
+	body, err := ioutil.ReadFile(articlePath)
 	if err != nil {
 		log.Debug("Couldn't find article: %v", err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -235,7 +235,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 
 	// write article
 	articlePath := filepath.Join(conf.DataDir, "articles", article.Title+".txt")
-	err = ioutil.WriteFile(filepath.FromSlash(articlePath), []byte(article.Body), 0644)
+	err = ioutil.WriteFile(articlePath, []byte(article.Body), 0644)
 
 	if err != nil {
 		log.Error("Error saving article: %s", err)
@@ -257,7 +257,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 	gzipWriter.Close()
 
 	archiveFilePath := filepath.Join(conf.DataDir, "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
-	err := ioutil.WriteFile(filepath.FromSlash(archiveFilePath), b.Bytes(), 0644)
+	err := ioutil.WriteFile(archiveFilePath, b.Bytes(), 0644)
 
 	if err != nil {
 		log.Error("Error saving archive: %s", err)
@@ -268,7 +268,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 
 func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
 	metadataFilePath := filepath.Join(conf.DataDir, "metadata", article.Title+".meta")
-	metadataFile, err := os.OpenFile(filepath.FromSlash(metadataFilePath), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+	metadataFile, err := os.OpenFile(metadataFilePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
 		log.Error("Error saving metadata: %s", err)
@@ -319,7 +319,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 	}
 
-	usersFile, err := os.OpenFile(filepath.FromSlash(conf.DataDir+"/users.txt"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+	usersFile, err := os.OpenFile(filepath.Join(conf.DataDir, "users.txt"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
 		log.Error("Couldn't open users file: ", err)
@@ -419,7 +419,7 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(filepath.FromSlash(filepath.Join(conf.DataDir, "articles")))
+	files, err := ioutil.ReadDir(filepath.Join(conf.DataDir, "articles"))
 
 	if err != nil {
 		log.Error("Couldn't get articles", err)
@@ -471,7 +471,7 @@ func init() {
 	flag.Parse()
 
 	// read config file
-	configData, err := ioutil.ReadFile(filepath.FromSlash(*configFile))
+	configData, err := ioutil.ReadFile(filepath.FromSlash(*configFilePath))
 	if err != nil {
 		panic(fmt.Sprintf("Error reading config file: %v", err))
 	}
@@ -503,7 +503,7 @@ func init() {
 	baseTemplate = string(baseTemplateBytes)
 
 	// populate articles cache
-	articleDir, err := ioutil.ReadDir(filepath.FromSlash(conf.DataDir + "articles"))
+	articleDir, err := ioutil.ReadDir(filepath.Join(conf.DataDir, "articles"))
 
 	if err != nil {
 		log.Fatal("Error reading articles: %v", err)
@@ -516,14 +516,15 @@ func init() {
 			articles[articleName] = true
 		}
 	}
+	log.Debug("Loaded %d articles", len(articles))
 
 	// populate users cache
 	usersFilePath := filepath.Join(conf.DataDir, "users.txt")
-	csvfile, err := os.Open(filepath.FromSlash(usersFilePath))
+	csvfile, err := os.Open(usersFilePath)
 
 	if err != nil {
-		if _, err := os.Stat(filepath.FromSlash(usersFilePath)); err != nil {
-			csvfile, _ = os.Create(filepath.FromSlash(usersFilePath))
+		if _, err := os.Stat(usersFilePath); err != nil {
+			csvfile, _ = os.Create(usersFilePath)
 		} else {
 			log.Fatal("Error opening users file: %v", err)
 			panic(err)
@@ -564,6 +565,7 @@ func init() {
 			log.Error("Invalid row in csv file: %v", user)
 		}
 	}
+	log.Debug("Loaded %d users", len(users)/2)
 }
 
 func redirToHttps(w http.ResponseWriter, r *http.Request) {
