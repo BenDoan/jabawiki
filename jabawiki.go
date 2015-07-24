@@ -137,7 +137,7 @@ func isUserAllowed(user User) bool {
 func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User) {
 	format := r.Form.Get("format")
 
-	articlePath := filepath.Join(conf.DataDir, "articles", title+".txt")
+	articlePath := filepath.Join(getDataDirPath(), "articles", title+".txt")
 	body, err := ioutil.ReadFile(articlePath)
 	if err != nil {
 		log.Debug("Couldn't find article: %v", err)
@@ -234,7 +234,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	}
 
 	// write article
-	articlePath := filepath.Join(conf.DataDir, "articles", article.Title+".txt")
+	articlePath := filepath.Join(getDataDirPath(), "articles", article.Title+".txt")
 	err = ioutil.WriteFile(articlePath, []byte(article.Body), 0644)
 
 	if err != nil {
@@ -256,7 +256,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 	gzipWriter.Write([]byte(article.Body))
 	gzipWriter.Close()
 
-	archiveFilePath := filepath.Join(conf.DataDir, "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
+	archiveFilePath := filepath.Join(getDataDirPath(), "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
 	err := ioutil.WriteFile(archiveFilePath, b.Bytes(), 0644)
 
 	if err != nil {
@@ -267,7 +267,7 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 }
 
 func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
-	metadataFilePath := filepath.Join(conf.DataDir, "metadata", article.Title+".meta")
+	metadataFilePath := filepath.Join(getDataDirPath(), "metadata", article.Title+".meta")
 	metadataFile, err := os.OpenFile(metadataFilePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
@@ -319,7 +319,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 	}
 
-	usersFile, err := os.OpenFile(filepath.Join(conf.DataDir, "users.txt"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+	usersFile, err := os.OpenFile(filepath.Join(getDataDirPath(), "users.txt"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
 		log.Error("Couldn't open users file: ", err)
@@ -419,7 +419,7 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(filepath.Join(conf.DataDir, "articles"))
+	files, err := ioutil.ReadDir(filepath.Join(getDataDirPath(), "articles"))
 
 	if err != nil {
 		log.Error("Couldn't get articles", err)
@@ -467,6 +467,10 @@ func HandleGetPreview(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(articlesJson))
 }
 
+func getDataDirPath() string {
+	return filepath.FromSlash(conf.DataDir)
+}
+
 func init() {
 	flag.Parse()
 
@@ -486,13 +490,15 @@ func init() {
 		panic(err.Error())
 	}
 
-	backend := logging.NewLogBackend(os.Stderr, "", 0)
-	backendFormatter := logging.NewBackendFormatter(backend, logFormat)
+	logging.SetFormatter(logFormat)
 
-	backendLeveled := logging.AddModuleLevel(backend)
-	backendLeveled.SetLevel(log_level, "")
+	log_backend := logging.NewLogBackend(os.Stdout, "", 0)
+	log_backend.Color = true
 
-	logging.SetBackend(backendLeveled, backendFormatter)
+	log_backend_level := logging.AddModuleLevel(log_backend)
+	log_backend_level.SetLevel(log_level, "")
+
+	log.SetBackend(log_backend_level)
 
 	// load base template
 	baseTemplateBytes, err := ioutil.ReadFile(filepath.FromSlash("templates/base.html"))
@@ -503,7 +509,7 @@ func init() {
 	baseTemplate = string(baseTemplateBytes)
 
 	// populate articles cache
-	articleDir, err := ioutil.ReadDir(filepath.Join(conf.DataDir, "articles"))
+	articleDir, err := ioutil.ReadDir(filepath.Join(getDataDirPath(), "articles"))
 
 	if err != nil {
 		log.Fatal("Error reading articles: %v", err)
@@ -519,7 +525,7 @@ func init() {
 	log.Debug("Loaded %d articles", len(articles))
 
 	// populate users cache
-	usersFilePath := filepath.Join(conf.DataDir, "users.txt")
+	usersFilePath := filepath.Join(getDataDirPath(), "users.txt")
 	csvfile, err := os.Open(usersFilePath)
 
 	if err != nil {
