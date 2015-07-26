@@ -51,7 +51,7 @@ app.controller("ArticleViewCtrl", ['$scope',
             }).
             error(function(data, status, headers, config) {
                 if (status === 401) {
-                    $scope.error = ["Not allowed, please login", "warning"]
+                    $scope.$parent.error = ["Not allowed, please login", "warning"]
                 }else{
                     $location.path('/w/' + title + '/edit');
                 }
@@ -83,7 +83,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                 }
             }).
             error(function(data, status, headers, config) {
-                $scope.error = ["Could not retrieve article", "danger"]
+                $scope.$parent.error = ["Could not retrieve article", "danger"]
                 $scope.article = {
                     title: title,
                     summary: "",
@@ -133,26 +133,26 @@ app.controller("LoginCtrl", ['$scope',
                     }, 500);
                 }).
                 error(function(data, status, headers, config) {
-                    $scope.error = [data, "danger"];
+                    $scope.$parent.error = [data, "danger"];
                 });
         };
 
         $scope.register = function(article){
             if ($scope.reg_password != $scope.reg_password2){
-                $scope.error = ["Passwords do not match", "danger"];
+                $scope.$parent.error = ["Passwords do not match", "danger"];
                 return
             }
 
             ArticleFactory.registerUser($scope.reg_email, $scope.reg_name, $scope.reg_password).
                 success(function(data, status, headers, config) {
-                    $scope.error = ["Success! Please log in", "success"];
+                    $scope.$parent.error = ["Success! Please log in", "success"];
                     $scope.reg_email = '';
                     $scope.reg_name = '';
                     $scope.reg_password = '';
                     $scope.reg_password2 = '';
                 }).
                 error(function(data, status, headers, config) {
-                    $scope.error = [data, "danger"];
+                    $scope.$parent.error = [data, "danger"];
                 });
         };
     }]);
@@ -178,7 +178,7 @@ app.controller("IndexCtrl", ['$scope',
                     $scope.articles = data
                 }).
                 error(function(data, status, headers, config) {
-                    $scope.error = ["Couldn't get article listing", "danger"];
+                    $scope.$parent.error = ["Couldn't get article listing", "danger"];
                 });
 
     }]);

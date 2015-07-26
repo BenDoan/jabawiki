@@ -328,6 +328,7 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := User{genUUID(), incomingUser.Email, incomingUser.Name, Unverified, hashedPassword}
+
 	_, err = fmt.Fprintf(usersFile, fmt.Sprintf("%s,%s,%s,%d,%s\n", user.Id, user.Email, user.Name, user.Role, user.Password))
 	if err != nil {
 		log.Error("Couldn't write to users file: %v", err)
@@ -338,6 +339,8 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 	// allow user to be looked up by id or email
 	users[user.Id] = user
 	users[user.Email] = user
+
+	log.Debug("Registered user: %s", user.Email)
 	fmt.Fprint(w, "Good")
 }
 
