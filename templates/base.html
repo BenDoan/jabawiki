@@ -19,8 +19,7 @@
     <body>
         <div class="container">
             <div class="row">
-                <div class="page-alert alert alert-{{ error[1] }}" ng-bind="error[0]"></div>
-
+                <div class="page-alert alert alert-{{ error[1] }}" ng-if="error" ng-bind="error[0]"></div>
                 <a href="/">Home</a>
 
                 <div ng-view></div>

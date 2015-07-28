@@ -23,8 +23,9 @@ app.controller("MasterCtrl", ['$scope',
                 error(function(data){
                     console.log("Logout failed")
                 });
+            $scope.$parent.error = null
             $timeout(function(){
-
+                $scope.$parent.error = null
                 $location.path('/');
             }, 500);
         }
@@ -53,6 +54,7 @@ app.controller("ArticleViewCtrl", ['$scope',
                 if (status === 401) {
                     $scope.$parent.error = ["Not allowed, please login", "warning"]
                 }else{
+                    $scope.$parent.error = null
                     $location.path('/w/' + title + '/edit');
                 }
             });
@@ -103,6 +105,7 @@ app.controller('ArticleEditCtrl', ['$scope',
         };
 
         $scope.viewArticle = function() {
+            $scope.$parent.error = null
             $location.path('/w/'+title);
         };
 
@@ -128,7 +131,9 @@ app.controller("LoginCtrl", ['$scope',
         $scope.login = function(article){
             ArticleFactory.loginUser($scope.email, $scope.password).
                 success(function(data, status, headers, config) {
+                    $scope.$parent.error = null
                     $timeout(function(){
+                        $scope.$parent.error = null
                         $location.path('/');
                     }, 500);
                 }).
