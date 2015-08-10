@@ -12,16 +12,13 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/microcosm-cc/bluemonday"
 	"github.com/op/go-logging"
-	"github.com/russross/blackfriday"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -46,7 +43,6 @@ var (
 	listen = ":8080"
 
 	baseTemplate = ""
-	articles     = map[string]bool{}
 	users        = map[string]User{}
 
 	log       = logging.MustGetLogger("wiki")
@@ -54,7 +50,8 @@ var (
 
 	store = sessions.NewCookieStore([]byte("xxxxsecret"))
 
-	conf Config
+	articleStore ArticleStore
+	conf         Config
 
 	errUserNotFound = errors.New("User not found in session")
 )
@@ -71,19 +68,12 @@ type User struct {
 	Password        []byte `json:"-"` // don't add password to json output
 }
 
-type Article struct {
-	Title, Body string
-}
-
-type WikiData struct {
-	User    User
-	Article Article
-}
-
 type IncomingArticle struct {
-	Title   string
-	Body    string
-	Summary string
+	Title, Body, Permission, Summary string
+}
+
+type OutgoingArticle struct {
+	Title, Body, Permission string
 }
 
 type IncomingUser struct {
@@ -137,23 +127,20 @@ func isUserAllowed(user User) bool {
 func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User) {
 	format := r.Form.Get("format")
 
-	articlePath := filepath.Join(getDataDirPath(), "articles", title+".txt")
-	body, err := ioutil.ReadFile(articlePath)
+	article, err := articleStore.GetArticle(title)
 	if err != nil {
 		log.Debug("Couldn't find article: %v", err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	article := Article{Title: title}
+	outgoingArticle := OutgoingArticle{Title: title}
+
 	switch format {
 	case "markdown":
-		article.Body = string(body)
+		outgoingArticle.Body = article.Body
 	case "html":
-		processedMarkdown := processMarkdown(body)
-		safeHtml := renderMarkdown(processedMarkdown)
-
-		article.Body = string(safeHtml)
+		outgoingArticle.Body = article.GetMarkdownBody()
 	default:
 		msg := "Invalid article format"
 		log.Debug("%s: %v", msg, format)
@@ -161,7 +148,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 		return
 	}
 
-	json_resp, err := json.Marshal(article)
+	json_resp, err := json.Marshal(outgoingArticle)
 	if err != nil {
 		log.Debug("Couldn't marshal json response: %v", err)
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
@@ -169,56 +156,6 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 	}
 
 	fmt.Fprint(w, string(json_resp))
-}
-
-func processMarkdown(text []byte) []byte {
-	// create wiki links
-	//TODO: think about normalizing the input here
-	pattern := regexp.MustCompile(`\[\[[a-zA-Z0-9_]+\]\]`)
-	newBody := pattern.ReplaceAllStringFunc(string(text), func(str string) string {
-		articleName := str[2 : len(str)-2] //remove brackets
-		spacedArticleName := strings.Replace(articleName, "_", " ", -1)
-		if articles[articleName] {
-			return fmt.Sprintf(`<a href="/w/%s">%s</a>`, articleName, spacedArticleName)
-		} else {
-			return fmt.Sprintf(`<a class="wikilink-new" href="/w/%s">%s</a>`, articleName, spacedArticleName)
-		}
-	})
-
-	return []byte(newBody)
-}
-
-func renderMarkdown(body []byte) []byte {
-	htmlFlags := 0 |
-		blackfriday.HTML_USE_SMARTYPANTS |
-		//blackfriday.HTML_SMARTYPANTS_FRACTIONS |
-		//TODO: need to add class to generated html
-		//blackfriday.HTML_TOC |
-		blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
-
-	extensions := 0 |
-		blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
-		blackfriday.EXTENSION_TABLES |
-		blackfriday.EXTENSION_FENCED_CODE |
-		blackfriday.EXTENSION_AUTOLINK |
-		blackfriday.EXTENSION_STRIKETHROUGH |
-		blackfriday.EXTENSION_HEADER_IDS |
-		blackfriday.EXTENSION_AUTO_HEADER_IDS |
-		blackfriday.EXTENSION_TITLEBLOCK |
-		//blackfriday.EXTENSION_SPACE_HEADERS |
-		blackfriday.EXTENSION_BACKSLASH_LINE_BREAK
-
-	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
-
-	unsafe := blackfriday.MarkdownOptions(body, renderer, blackfriday.Options{
-		Extensions: extensions})
-
-	policy := bluemonday.UGCPolicy()
-	policy.AllowAttrs("class").OnElements("a")
-
-	safe := policy.SanitizeBytes(unsafe)
-
-	return safe
 }
 
 func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
@@ -243,10 +180,10 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 		return
 	}
 
-	articles[article.Title] = true
+	articleStore.AddAvailableArticle(article.Title)
+	articleStore.AddArticleFromIncoming(article.Title, article)
 
 	writeMetadata(w, r, article)
-
 	archiveArticle(w, article)
 }
 
@@ -421,7 +358,7 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(userJson))
 }
 
-func HandleGetAllArticles(w http.ResponseWriter, r *http.Request) {
+func HandleGetAllArticleNames(w http.ResponseWriter, r *http.Request) {
 	files, err := ioutil.ReadDir(filepath.Join(getDataDirPath(), "articles"))
 
 	if err != nil {
@@ -512,6 +449,7 @@ func init() {
 	baseTemplate = string(baseTemplateBytes)
 
 	// populate articles cache
+	articleStore = NewArticleStore()
 	articleDir, err := ioutil.ReadDir(filepath.Join(getDataDirPath(), "articles"))
 
 	if err != nil {
@@ -519,13 +457,16 @@ func init() {
 		panic(err)
 	}
 
+	numArticles := 0
 	for _, file := range articleDir {
 		if !file.IsDir() {
 			articleName := strings.Split(file.Name(), ".")[0]
-			articles[articleName] = true
+			articleStore.AddAvailableArticle(articleName)
+
+			numArticles++
 		}
 	}
-	log.Debug("Loaded %d articles", len(articles))
+	log.Debug("Found %d available articles", numArticles)
 
 	// populate users cache
 	usersFilePath := filepath.Join(getDataDirPath(), "users.txt")
@@ -588,7 +529,7 @@ func main() {
 	r.HandleFunc("/", BaseHandler)
 	r.HandleFunc("/article/{title}", HandleArticle)
 
-	r.HandleFunc("/articles/all", HandleGetAllArticles)
+	r.HandleFunc("/articles/all", HandleGetAllArticleNames)
 	r.HandleFunc("/articles/preview", HandleGetPreview)
 
 	r.HandleFunc("/user/register", HandleRegister)

@@ -81,6 +81,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                 $scope.article = {
                     title: title,
                     summary: "",
+                    permission: "",
                     body: data.Body
                 }
             }).
@@ -89,6 +90,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                 $scope.article = {
                     title: title,
                     summary: "",
+                    permission: "",
                     body: ""
                 }
 

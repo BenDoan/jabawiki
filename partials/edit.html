@@ -2,6 +2,13 @@
     <h2>{{ article.title }}</h2>
     <form class="edit" novalidate>
         <textarea class="form-control" cols="100" rows="10" ng-model="article.body"></textarea>
+        <br/>
+        Permission
+        <select class="form-control" ng-model="article.permission">
+            <option value="private">Private</option>
+            <option value="public">Public</option>
+            <option value="registered">Registered</option>
+        </select>
         <br>
         Edit summary
         <input class="form-control" type="text" ng-model="article.summary">
