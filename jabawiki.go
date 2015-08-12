@@ -28,11 +28,12 @@ import (
 var configFilePath = flag.String("config-file", "config.toml", "A toml formatted config file")
 
 type Config struct {
-	Domain    string
-	Port      int
-	EnableSSL bool
-	LogLevel  string
-	DataDir   string
+	Domain       string
+	Port         int
+	EnableSSL    bool
+	LogLevel     string
+	DataDir      string
+	CookieSecret string
 }
 
 const (
@@ -48,8 +49,7 @@ var (
 	log       = logging.MustGetLogger("wiki")
 	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:2006-01-02 15:04:05} %{level:.4s}%{color:reset} %{message}")
 
-	store = sessions.NewCookieStore([]byte("xxxxsecret"))
-
+	store        *sessions.CookieStore
 	articleStore ArticleStore
 	conf         Config
 
@@ -423,6 +423,11 @@ func init() {
 	if _, err := toml.Decode(string(configData), &conf); err != nil {
 		panic(fmt.Sprintf("Error parsing config file: %v", err))
 	}
+
+	if len(conf.CookieSecret) == 0 {
+		panic("CookieSecret not set in config")
+	}
+	store = sessions.NewCookieStore([]byte(conf.CookieSecret))
 
 	// setup logging
 	log_level, err := logging.LogLevel(conf.LogLevel)

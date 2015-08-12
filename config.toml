@@ -4,3 +4,4 @@ EnableSSL = false
 # Options: CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG
 LogLevel = "INFO"
 DataDir = "data"
+CookieSecret = "secretchangeme!"
