@@ -10,8 +10,13 @@ import (
 	"strings"
 )
 
+type ArticleMetadata struct {
+	Permission string
+}
+
 type Article struct {
-	Title, Body, Permission string
+	Title, Body string
+	Metadata    ArticleMetadata
 }
 
 type ArticleStore struct {

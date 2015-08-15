@@ -183,7 +183,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	articleStore.AddAvailableArticle(article.Title)
 	articleStore.AddArticleFromIncoming(article.Title, article)
 
-	writeMetadata(w, r, article)
+	writeHistory(w, r, article)
 	archiveArticle(w, article)
 }
 
@@ -203,18 +203,18 @@ func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 	}
 }
 
-func writeMetadata(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
-	metadataFilePath := filepath.Join(getDataDirPath(), "metadata", article.Title+".meta")
-	metadataFile, err := os.OpenFile(metadataFilePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+func writeHistory(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
+	historyFilePath := filepath.Join(getDataDirPath(), "history", article.Title+".hist")
+	historyFile, err := os.OpenFile(historyFilePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
-		log.Error("Error saving metadata: %s", err)
+		log.Error("Error saving history: %s", err)
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
-	metadata := fmt.Sprintf("%d | %s | %s\n", time.Now().Unix(), r.RemoteAddr, article.Summary)
-	fmt.Fprint(metadataFile, metadata)
+	history := fmt.Sprintf("%d | %s | %s\n", time.Now().Unix(), r.RemoteAddr, article.Summary)
+	fmt.Fprint(historyFile, history)
 }
 
 func genUUID() string {
