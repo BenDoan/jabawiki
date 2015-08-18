@@ -18,7 +18,7 @@ app.controller("MasterCtrl", ['$scope',
             ArticleFactory.logoutUser().
                 success(function(data){
                     console.log("Logout succeeded")
-                    $scope.user = {};
+                    $scope.user = null
                 }).
                 error(function(data){
                     console.log("Logout failed")
@@ -134,6 +134,15 @@ app.controller("LoginCtrl", ['$scope',
             ArticleFactory.loginUser($scope.email, $scope.password).
                 success(function(data, status, headers, config) {
                     $scope.$parent.error = null
+
+                    ArticleFactory.getUser().
+                        success(function(data, status, headers, config){
+                            $scope.$parent.user = data
+                        }).
+                        error(function(data, status, headers, config){
+                            console.log("Error fetching user")
+                        });
+
                     $timeout(function(){
                         $scope.$parent.error = null
                         $location.path('/');
