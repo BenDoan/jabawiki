@@ -134,7 +134,7 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User)
 		return
 	}
 
-	outgoingArticle := OutgoingArticle{Title: title}
+	outgoingArticle := OutgoingArticle{Title: title, Permission: article.Metadata.Permission}
 
 	switch format {
 	case "markdown":
@@ -183,8 +183,27 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	articleStore.AddAvailableArticle(article.Title)
 	articleStore.AddArticleFromIncoming(article.Title, article)
 
+	err = writeMetadata(article)
+	if err != nil {
+		log.Error("Error writing metadata: %s", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
+		return
+	}
+
 	writeHistory(w, r, article)
 	archiveArticle(w, article)
+}
+
+func writeMetadata(article IncomingArticle) error {
+	metadataString := fmt.Sprintf("%s\n%s\n%s", article.Permission, "", "")
+	metadataFilePath := filepath.Join(getDataDirPath(), "metadata", fmt.Sprintf("%s.meta", article.Title))
+
+	err := ioutil.WriteFile(metadataFilePath, []byte(metadataString), 0644)
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func archiveArticle(w http.ResponseWriter, article IncomingArticle) {

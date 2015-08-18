@@ -42,7 +42,8 @@ func (a ArticleStore) AddArticle(key string, article Article) {
 }
 
 func (a ArticleStore) AddArticleFromIncoming(key string, incomingArticle IncomingArticle) {
-	article := Article{Title: incomingArticle.Title, Body: incomingArticle.Body}
+	articleMeta := ArticleMetadata{Permission: incomingArticle.Permission}
+	article := Article{Title: incomingArticle.Title, Body: incomingArticle.Body, Metadata: articleMeta}
 
 	a.articles[key] = article
 }
@@ -54,10 +55,22 @@ func (a ArticleStore) GetArticle(title string) (Article, error) {
 
 	articlePath := filepath.Join(getDataDirPath(), "articles", title+".txt")
 	body, err := ioutil.ReadFile(articlePath)
+	if err != nil {
+		return Article{}, err
+	}
 
-	article := Article{Title: title, Body: string(body)}
+	articleMetadataPath := filepath.Join(getDataDirPath(), "metadata", title+".meta")
+	meta, err := ioutil.ReadFile(articleMetadataPath)
+	if err != nil {
+		return Article{}, err
+	}
+
+	metaVals := strings.Split(string(meta), "\n")
+	metadata := ArticleMetadata{Permission: metaVals[0]}
+
+	article := Article{Title: title, Body: string(body), Metadata: metadata}
 	a.articles[title] = article
-	return article, err
+	return article, nil
 }
 
 func (a ArticleStore) HasArticle(key string) bool {

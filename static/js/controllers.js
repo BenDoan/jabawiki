@@ -45,9 +45,11 @@ app.controller("ArticleViewCtrl", ['$scope',
 
         ArticleFactory.getArticle('html', title).
             success(function(data, status, headers, config) {
+                console.log(data)
                 $scope.article = {
                     title: title,
-                    body: data.Body
+                    body: data.Body,
+                    permission: data.Permission
                 }
             }).
             error(function(data, status, headers, config) {
@@ -81,7 +83,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                 $scope.article = {
                     title: title,
                     summary: "",
-                    permission: "",
+                    permission: data.Permission,
                     body: data.Body
                 }
             }).
@@ -151,6 +153,7 @@ app.controller("LoginCtrl", ['$scope',
                 error(function(data, status, headers, config) {
                     $scope.$parent.error = [data, "danger"];
                 });
+
         };
 
         $scope.register = function(article){
