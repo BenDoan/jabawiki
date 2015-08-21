@@ -95,36 +95,45 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var user *User = nil
 	if data, ok := session.Values["id"]; ok {
 		if userId, ok := data.(string); ok {
-			if user, ok := users[userId]; ok {
-				if isUserAllowed(user) {
-					vars := mux.Vars(r)
-					title := vars["title"]
-
-					switch r.Method {
-					case "GET":
-						GetArticle(w, r, title, user)
-						return
-					case "PUT":
-						UpdateArticle(w, r, title)
-						return
-					}
-				}
+			if _, ok = users[userId]; ok {
+				tmpUser := users[userId]
+				user = &tmpUser
 			}
 		}
 	}
 
-	log.Debug("Access not authorized")
+	vars := mux.Vars(r)
+	title := vars["title"]
+	article, err := articleStore.GetArticle(title)
+	if err != nil {
+		log.Debug("Couldn't find article: %v", err)
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	if isUserAllowed(user, article) {
+		switch r.Method {
+		case "GET":
+			GetArticle(w, r, title)
+			return
+		case "PUT":
+			UpdateArticle(w, r, title)
+			return
+		}
+	}
+
 	http.Error(w, "Not allowed", http.StatusUnauthorized)
 	return
 }
 
-func isUserAllowed(user User) bool {
-	return user.Role != Unverified
+func isUserAllowed(user *User, article Article) bool {
+	return (user != nil && user.Role == Admin) || article.Metadata.Permission == "public"
 }
 
-func GetArticle(w http.ResponseWriter, r *http.Request, title string, user User) {
+func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
 	format := r.Form.Get("format")
 
 	article, err := articleStore.GetArticle(title)
@@ -362,7 +371,6 @@ func HandleUserGet(w http.ResponseWriter, r *http.Request) {
 	user, err := getUserFromSession(r)
 	if err != nil {
 		msg := "Couldn't find user in session"
-		log.Debug("%s: %v", msg, err)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
