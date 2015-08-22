@@ -90,12 +90,16 @@ app.controller('ArticleEditCtrl', ['$scope',
                 }
             }).
             error(function(data, status, headers, config) {
-                $scope.$parent.error = ["Could not retrieve article", "danger"]
-                $scope.article = {
-                    title: title,
-                    summary: "",
-                    permission: "",
-                    body: ""
+                if (status === 401) {
+                    $scope.$parent.error = ["Not allowed, please login", "warning"]
+                }else if (status == 404) {
+                    $scope.$parent.error = ["Article does not exist, try making it ", "danger"]
+                    $scope.article = {
+                        title: title,
+                        summary: "",
+                        permission: "",
+                        body: ""
+                    }
                 }
 
             });
@@ -107,6 +111,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                 }).
                 error(function(data, status, headers, config) {
                     console.log("Couldn't update article");
+                    $scope.$parent.error = ["Error while updating article: "+data, "danger"]
                 });
         };
 

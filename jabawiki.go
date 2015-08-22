@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -95,12 +96,12 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user *User = nil
+	user := User{}
 	if data, ok := session.Values["id"]; ok {
 		if userId, ok := data.(string); ok {
 			if _, ok = users[userId]; ok {
 				tmpUser := users[userId]
-				user = &tmpUser
+				user = tmpUser
 			}
 		}
 	}
@@ -108,11 +109,6 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	title := vars["title"]
 	article, err := articleStore.GetArticle(title)
-	if err != nil {
-		log.Debug("Couldn't find article: %v", err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
 
 	if isUserAllowed(user, article) {
 		switch r.Method {
@@ -129,8 +125,9 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func isUserAllowed(user *User, article Article) bool {
-	return (user != nil && user.Role == Admin) || article.Metadata.Permission == "public"
+func isUserAllowed(user User, article Article) bool {
+	return !reflect.DeepEqual(user, User{}) && user.Role == Admin ||
+		!reflect.DeepEqual(article, Article{}) && article.Metadata.Permission == "public"
 }
 
 func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
