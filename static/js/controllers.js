@@ -5,6 +5,12 @@ app.controller("MasterCtrl", ['$scope',
                                    '$timeout',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+
+        $scope.$on('$locationChangeSuccess',
+            function(event, toState, toParams, fromState, fromParams){
+                $scope.error = false
+            })
+
         $scope.title = "Wiki";
         ArticleFactory.getUser().
             success(function(data, status, headers, config){
@@ -23,9 +29,7 @@ app.controller("MasterCtrl", ['$scope',
                 error(function(data){
                     console.log("Logout failed")
                 });
-            $scope.$parent.error = null
             $timeout(function(){
-                $scope.$parent.error = null
                 $location.path('/');
             }, 500);
         }
@@ -45,7 +49,6 @@ app.controller("ArticleViewCtrl", ['$scope',
 
         ArticleFactory.getArticle('html', title).
             success(function(data, status, headers, config) {
-                console.log(data)
                 $scope.article = {
                     title: title,
                     body: data.Body,
@@ -56,7 +59,6 @@ app.controller("ArticleViewCtrl", ['$scope',
                 if (status === 401) {
                     $scope.$parent.error = ["Not allowed, please login", "warning"]
                 }else{
-                    $scope.$parent.error = null
                     $location.path('/w/' + title + '/edit');
                 }
             });
@@ -109,7 +111,6 @@ app.controller('ArticleEditCtrl', ['$scope',
         };
 
         $scope.viewArticle = function() {
-            $scope.$parent.error = null
             $location.path('/w/'+title);
         };
 
@@ -135,8 +136,6 @@ app.controller("LoginCtrl", ['$scope',
         $scope.login = function(article){
             ArticleFactory.loginUser($scope.email, $scope.password).
                 success(function(data, status, headers, config) {
-                    $scope.$parent.error = null
-
                     ArticleFactory.getUser().
                         success(function(data, status, headers, config){
                             $scope.$parent.user = data
@@ -146,7 +145,6 @@ app.controller("LoginCtrl", ['$scope',
                         });
 
                     $timeout(function(){
-                        $scope.$parent.error = null
                         $location.path('/');
                     }, 500);
                 }).

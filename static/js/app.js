@@ -30,5 +30,6 @@ var app = angular.module('wiki', ['ngRoute', 'angular-loading-bar']).
             });
 
         $locationProvider.html5Mode(true);
+
 }]);
 
