@@ -1,11 +1,8 @@
 <span class="pull-right"><a href="/profile">{{ user.Name }}</a></span>
-<div class="row">
-    <h2 class="title">
-        <a class="title" href="/w/{{ article.title }}">{{ display_title }}
-        <a ng-if="user" class="edit btn btn-warning btn-xs" href="/w/{{ article.title }}/edit">Edit</a></a>
-    </h2>
+<h2 class="title">
+    <a class="title" href="/w/{{ article.title }}">{{ display_title }}</a>
+</h2>
 
-    <div class="box">
-        <div class="article" ng-bind-html="getHtmlBody()"></div>
-    </div>
+<div class="box">
+    <div class="article" ng-bind-html="getHtmlBody()"></div>
 </div>

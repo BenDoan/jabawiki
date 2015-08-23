@@ -107,10 +107,9 @@ a.title {
     font-size: 35px;
 }
 
-.title > a.edit {
-    font-size: 10pt;
-    color: #FFF;
-}
+/*.title > a.edit {*/
+    /*color: #FFF;*/
+/*}*/
 
 .preview-box {
     border: 1px dotted red;

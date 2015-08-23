@@ -591,7 +591,7 @@ func main() {
 		}
 	} else {
 		log.Notice("Listening on :%d", conf.Port)
-		err := http.ListenAndServe(fmt.Sprintf("%s:%d", conf.Domain, conf.Port), r)
+		err := http.ListenAndServe(fmt.Sprintf(":%d", conf.Port), r)
 		if err != nil {
 			panic(fmt.Sprintf("Failed to start server: %v", err))
 		}

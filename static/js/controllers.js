@@ -54,6 +54,7 @@ app.controller("ArticleViewCtrl", ['$scope',
                     body: data.Body,
                     permission: data.Permission
                 }
+                $scope.$parent.article = $scope.article
             }).
             error(function(data, status, headers, config) {
                 if (status === 401) {
@@ -88,6 +89,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                     permission: data.Permission,
                     body: data.Body
                 }
+                $scope.$parent.article = $scope.article
             }).
             error(function(data, status, headers, config) {
                 if (status === 401) {

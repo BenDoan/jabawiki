@@ -18,15 +18,18 @@
 
     <body>
         <div class="container">
-            <div class="row">
-                <div class="page-alert alert alert-{{ error[1] }}" ng-if="error" ng-bind="error[0]"></div>
-                <a href="/">Home</a>
+            <div class="page-alert alert alert-{{ error[1] }}" ng-if="error" ng-bind="error[0]"></div>
 
-                <div ng-view></div>
+            <div ng-view></div>
 
-                <a ng-if="!user" href="/login">login / register</a>
-                <a ng-if="user" href="" ng-click="logoutUser()">logout</a>
-            </div>
+            <ol class="breadcrumb">
+                <li><a href="/">Home</a></li>
+                <li><a href="/w/{{ article.title}}/edit">Edit</a></li>
+                <li><a href="/w/{{ article.title}}/history">History</a></li>
+                <li ng-if="!user"><a href="/login">login / register</a></li>
+                <li ng-if="user"><a href="" ng-click="logoutUser()">logout</a></li>
+            </ol>
+
         </div> <!-- /container -->
 
         <script src="/static/lib/angular/angular.js"></script>
