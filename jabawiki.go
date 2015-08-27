@@ -126,8 +126,13 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 }
 
 func isUserAllowed(user User, article Article) bool {
-	return !reflect.DeepEqual(user, User{}) && user.Role == Admin ||
-		!reflect.DeepEqual(article, Article{}) && article.Metadata.Permission == "public"
+	hasUser := !reflect.DeepEqual(user, User{})
+	hasArticle := !reflect.DeepEqual(article, Article{})
+
+	return hasUser && user.Role == Admin ||
+		hasArticle && article.Metadata.Permission == "public" ||
+		hasUser && hasArticle && article.Metadata.Permission == "registered" && user.Role == Verified
+
 }
 
 func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
