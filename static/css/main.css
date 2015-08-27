@@ -119,3 +119,13 @@ a.title {
 .page-alert {
     margin-top:10px;
 }
+
+.breadcrumb > li + li::before {
+    padding: 0px 5px;
+    color: #CCC;
+    content: "| ";
+}
+
+.breadcrumb > li.action > a {
+    color: #90C3D4;
+}
