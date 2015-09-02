@@ -24,6 +24,7 @@ app.controller("MasterCtrl", ['$scope',
             ArticleFactory.logoutUser().
                 success(function(data){
                     console.log("Logout succeeded")
+                    $scope.error = ["Logout Successful", "success"];
                     $scope.user = null
                 }).
                 error(function(data){

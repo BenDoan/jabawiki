@@ -129,3 +129,7 @@ a.title {
 .breadcrumb > li.action > a {
     color: #90C3D4;
 }
+
+.black {
+    color: #000;
+}
