@@ -1,0 +1,14 @@
+<h3>History for {{title}}</h3>
+
+<table class="table table-bordered table-striped table-responsive">
+    <tr>
+        <th>Time</th>
+        <th>IP</th>
+        <th>Summary</th>
+    </tr>
+    <tr ng-repeat="histItem in history">
+        <td>{{histItem.time}}</td>
+        <td>{{histItem.ip}}</td>
+        <td>{{histItem.summary}}</td>
+    </tr>
+</table>

@@ -11,7 +11,7 @@ app.controller("MasterCtrl", ['$scope',
                 $scope.error = false
             })
 
-        $scope.title = "Wiki";
+        $scope.pageTitle = "Wiki";
         ArticleFactory.getUser().
             success(function(data, status, headers, config){
                 $scope.user = data
@@ -44,6 +44,7 @@ app.controller("ArticleViewCtrl", ['$scope',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
         title = $routeParams.title;
+        $scope.$parent.title = title
         $scope.display_title = title.replace(/_/g, " ");
 
         $scope.article = {};
@@ -80,6 +81,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $window, $sce, ArticleFactory){
         title = $routeParams.title;
+        $scope.$parent.title = title
         $scope.article = {}
 
         ArticleFactory.getArticle('markdown', title).
@@ -206,4 +208,24 @@ app.controller("IndexCtrl", ['$scope',
                     $scope.$parent.error = ["Couldn't get article listing", "danger"];
                 });
 
+    }]);
+
+app.controller("HistoryCtrl", ['$scope',
+                                   '$routeParams',
+                                   '$location',
+                                   '$sce',
+                                   '$timeout',
+                                   'ArticleFactory',
+    function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+            $scope.title = $routeParams.title;
+            $scope.$parent.title = $scope.title
+
+            ArticleFactory.getArticleHistory($scope.title).
+                success(function(data, status, headers, config) {
+                    console.log("Got hist")
+                    $scope.history = data
+                }).
+                error(function(data, status, headers, config) {
+                    console.log("Error getting article history: " + status)
+                });
     }]);

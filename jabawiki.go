@@ -81,6 +81,12 @@ type IncomingUser struct {
 	Email, Name, Password string
 }
 
+type HistoryItem struct {
+	Time    time.Time `json:"time"`
+	Ip      string    `json:"ip"`
+	Summary string    `json:"summary"`
+}
+
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, baseTemplate)
 }
@@ -436,6 +442,46 @@ func HandleGetPreview(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(articlesJson))
 }
 
+func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	title := vars["title"]
+
+	hist, err := ioutil.ReadFile(filepath.Join(getDataDirPath(), "history", title+".hist"))
+
+	if err != nil {
+		msg := "Couldn't find article history"
+		log.Debug("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusNotFound)
+		return
+	}
+
+	var histItems = []HistoryItem{}
+
+	for _, item := range strings.Split(string(hist), "\n") {
+		splitLine := strings.Split(item, " | ")
+		if len(splitLine) != 3 {
+			continue
+		}
+
+		timeInt, err := strconv.ParseInt(string(splitLine[0]), 10, 64)
+		if err != nil {
+			msg := "Couldn't parse time from history entry"
+			log.Error("%s: %v", msg, err)
+		}
+
+		unixTime := time.Unix(timeInt, 0)
+		histItems = append(histItems, HistoryItem{unixTime, string(splitLine[1]), string(splitLine[2])})
+	}
+
+	json_resp, err := json.Marshal(histItems)
+	if err != nil {
+		log.Error("Unable to marshal history to json: %v", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprint(w, string(json_resp))
+}
+
 func getDataDirPath() string {
 	return filepath.FromSlash(conf.DataDir)
 }
@@ -570,6 +616,8 @@ func main() {
 	r.HandleFunc("/user/login", HandleLogin)
 	r.HandleFunc("/user/logout", HandleLogout)
 	r.HandleFunc("/user/get", HandleUserGet)
+
+	r.HandleFunc("/history/get/{title}", HandleHistoryGet)
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	r.PathPrefix("/partials/").Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))

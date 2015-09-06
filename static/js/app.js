@@ -13,6 +13,10 @@ var app = angular.module('wiki', ['ngRoute', 'angular-loading-bar']).
                 templateUrl: 'partials/edit.html',
                 controller: 'ArticleEditCtrl'
             }).
+            when('/w/:title/history', {
+                templateUrl: 'partials/history.html',
+                controller: 'HistoryCtrl'
+            }).
             when('/w/:title', {
                 templateUrl: 'partials/view.html',
                 controller: 'ArticleViewCtrl'

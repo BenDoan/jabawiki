@@ -66,5 +66,12 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
         })
     };
 
+    exports.getArticleHistory = function(article){
+        return $http({
+            method: 'POST',
+            url: '/history/get/'+article
+        })
+    };
+
     return exports;
 }]);
