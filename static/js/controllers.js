@@ -102,7 +102,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                     $scope.article = {
                         title: title,
                         summary: "",
-                        permission: "",
+                        permission: "private",
                         body: ""
                     }
                 }
