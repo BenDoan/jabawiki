@@ -226,8 +226,9 @@ func writeMetadata(article IncomingArticle) error {
 func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
 	var b bytes.Buffer
 	gzipWriter := gzip.NewWriter(&b)
+	defer gzipWriter.Close()
+
 	gzipWriter.Write([]byte(article.Body))
-	gzipWriter.Close()
 
 	archiveFilePath := filepath.Join(getDataDirPath(), "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
 	err := ioutil.WriteFile(archiveFilePath, b.Bytes(), 0644)
@@ -482,6 +483,40 @@ func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(json_resp))
 }
 
+func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	title := vars["title"]
+	time := vars["time"]
+
+	archiveFilename := fmt.Sprintf("%s.%s.txt.gz", title, time)
+	f, err := os.Open(filepath.Join(getDataDirPath(), "archive", archiveFilename))
+
+	if err != nil {
+		msg := "Couldn't find article archive"
+		log.Debug("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusNotFound)
+		return
+	}
+	defer f.Close()
+
+	gr, err := gzip.NewReader(f)
+	if err != nil {
+		log.Error("Couldn't create gzip reader from file: %v", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
+		return
+	}
+	defer gr.Close()
+
+	b, err := ioutil.ReadAll(gr)
+	if err != nil {
+		log.Error("Couldn't create gzip reader from file: %v", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprint(w, string(b))
+}
+
 func getDataDirPath() string {
 	return filepath.FromSlash(conf.DataDir)
 }
@@ -618,6 +653,8 @@ func main() {
 	r.HandleFunc("/user/get", HandleUserGet)
 
 	r.HandleFunc("/history/get/{title}", HandleHistoryGet)
+
+	r.HandleFunc("/archives/get/{title}/{time}", HandleArchiveGet)
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	r.PathPrefix("/partials/").Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))
