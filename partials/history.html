@@ -5,10 +5,15 @@
         <th>Time</th>
         <th>IP</th>
         <th>Summary</th>
+        <th>Actions</th>
     </tr>
     <tr ng-repeat="histItem in history">
-        <td>{{histItem.time}}</td>
+        <td>{{histItem.time*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</td>
         <td>{{histItem.ip}}</td>
         <td>{{histItem.summary}}</td>
+        <td>
+            <a href="/archives/get/{{title}}/{{histItem.time}}">view</a> |
+            <a class="wikilink-new" href="/archives/get/{{title}}/{{histItem.time}}">revert</a>
+        </td>
     </tr>
 </table>

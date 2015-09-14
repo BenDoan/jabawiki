@@ -81,12 +81,6 @@ type IncomingUser struct {
 	Email, Name, Password string
 }
 
-type HistoryItem struct {
-	Time    time.Time `json:"time"`
-	Ip      string    `json:"ip"`
-	Summary string    `json:"summary"`
-}
-
 func BaseHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, baseTemplate)
 }
@@ -443,12 +437,13 @@ func HandleGetPreview(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(articlesJson))
 }
 
+// HandleHistoryGet returns the full history of a specific page
 func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	title := vars["title"]
 
-	hist, err := ioutil.ReadFile(filepath.Join(getDataDirPath(), "history", title+".hist"))
-
+	histfileName := fmt.Sprintf("%s.hist", title)
+	hist, err := ioutil.ReadFile(filepath.Join(getDataDirPath(), "history", histfileName))
 	if err != nil {
 		msg := "Couldn't find article history"
 		log.Debug("%s: %v", msg, err)
@@ -456,22 +451,31 @@ func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var histItems = []HistoryItem{}
+	var histItems = []map[string]interface{}{}
 
-	for _, item := range strings.Split(string(hist), "\n") {
-		splitLine := strings.Split(item, " | ")
+	historyByLine := strings.Split(string(hist), "\n")
+	for i := len(historyByLine) - 1; i >= 0; i-- {
+		splitLine := strings.Split(historyByLine[i], " | ")
+
 		if len(splitLine) != 3 {
 			continue
 		}
 
-		timeInt, err := strconv.ParseInt(string(splitLine[0]), 10, 64)
+		timeCol := splitLine[0]
+		ipCol := splitLine[1]
+		summaryCol := splitLine[2]
+
+		timeInt, err := strconv.ParseInt(string(timeCol), 10, 64)
 		if err != nil {
 			msg := "Couldn't parse time from history entry"
 			log.Error("%s: %v", msg, err)
 		}
 
-		unixTime := time.Unix(timeInt, 0)
-		histItems = append(histItems, HistoryItem{unixTime, string(splitLine[1]), string(splitLine[2])})
+		histItems = append(histItems, map[string]interface{}{
+			"time":    timeInt,
+			"ip":      ipCol,
+			"summary": summaryCol,
+		})
 	}
 
 	json_resp, err := json.Marshal(histItems)
@@ -480,6 +484,7 @@ func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
+
 	fmt.Fprint(w, string(json_resp))
 }
 
