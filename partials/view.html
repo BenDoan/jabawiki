@@ -1,7 +1,10 @@
-<h2 class="title">
+<h1 class="title">
     <a class="title" href="/w/{{ article.title }}">{{ display_title }}</a>
-</h2>
+    <span class="badge {{ article.permission }}">{{ article.permission }}</span>
+</h1>
 
 <div class="box">
     <div class="article" ng-bind-html="getHtmlBody()"></div>
 </div>
+
+

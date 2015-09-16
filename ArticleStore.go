@@ -79,7 +79,11 @@ func (a ArticleStore) HasArticle(key string) bool {
 }
 
 func (a Article) GetMarkdownBody() string {
-	processedMarkdown := processMarkdown([]byte(a.Body))
+	return Markdownify(a.Body)
+}
+
+func Markdownify(str string) string {
+	processedMarkdown := processMarkdown([]byte(str))
 	safeHtml := renderMarkdown(processedMarkdown)
 	return string(safeHtml)
 }

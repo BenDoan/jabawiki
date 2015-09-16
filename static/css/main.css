@@ -102,8 +102,16 @@ div.error-alert {
     color: #000;
 }
 
-a.title {
-    font-size: 35px;
+.title > span.badge.public {
+    background-color: #5CB85C;
+}
+
+.title > span.badge.private {
+    background-color: #D9534F;
+}
+
+.title > span.badge.registered {
+    background-color: #F0AD4E;
 }
 
 .preview-box {
@@ -115,6 +123,9 @@ a.title {
     margin-top:10px;
 }
 
+.breadcrumb {
+    margin-top:5px;
+}
 .breadcrumb > li + li::before {
     padding: 0px 5px;
     color: #CCC;

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"compress/gzip"
 	"crypto/rand"
 	"encoding/csv"
@@ -218,20 +217,21 @@ func writeMetadata(article IncomingArticle) error {
 }
 
 func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
-	var b bytes.Buffer
-	gzipWriter := gzip.NewWriter(&b)
+	archiveFilePath := filepath.Join(getDataDirPath(), "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
+	archiveFile, err := os.OpenFile(archiveFilePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+
+	gzipWriter, err := gzip.NewWriterLevel(archiveFile, gzip.DefaultCompression)
 	defer gzipWriter.Close()
 
-	gzipWriter.Write([]byte(article.Body))
-
-	archiveFilePath := filepath.Join(getDataDirPath(), "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
-	err := ioutil.WriteFile(archiveFilePath, b.Bytes(), 0644)
-
 	if err != nil {
-		log.Error("Error saving archive: %s", err)
+		log.Error("Error initializing gzip writer: %v", err)
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
+
+	gzipWriter.Write([]byte(article.Body))
+	gzipWriter.Flush()
+
 }
 
 func writeHistory(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
@@ -491,9 +491,11 @@ func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
 func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	title := vars["title"]
-	time := vars["time"]
+	time := vars["archiveTime"]
+	format := vars["format"]
 
 	archiveFilename := fmt.Sprintf("%s.%s.txt.gz", title, time)
+	fmt.Printf("archive name is: %v\n", archiveFilename)
 	f, err := os.Open(filepath.Join(getDataDirPath(), "archive", archiveFilename))
 
 	if err != nil {
@@ -506,7 +508,7 @@ func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
 
 	gr, err := gzip.NewReader(f)
 	if err != nil {
-		log.Error("Couldn't create gzip reader from file: %v", err)
+		log.Error("Couldn't create gzip reader from file, file may be corrupt: %v", err)
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
@@ -514,12 +516,22 @@ func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
 
 	b, err := ioutil.ReadAll(gr)
 	if err != nil {
-		log.Error("Couldn't create gzip reader from file: %v", err)
+		log.Error("Couldn't read gzipped archive file, file may be corrupt: %v", err)
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprint(w, string(b))
+	switch format {
+	case "markdown":
+		fmt.Fprint(w, string(b))
+	case "html":
+		fmt.Fprint(w, Markdownify(string(b)))
+	default:
+		msg := "Invalid article format"
+		log.Debug("%s: %v", msg, format)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
 }
 
 func getDataDirPath() string {
@@ -659,7 +671,7 @@ func main() {
 
 	r.HandleFunc("/history/get/{title}", HandleHistoryGet)
 
-	r.HandleFunc("/archives/get/{title}/{time}", HandleArchiveGet)
+	r.HandleFunc("/archives/get/{title}/{archiveTime}/{format}", HandleArchiveGet)
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	r.PathPrefix("/partials/").Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))

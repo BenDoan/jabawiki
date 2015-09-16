@@ -1,4 +1,4 @@
-app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
+app.factory('ArticleFactory', ["$http", "$httpParamSerializerJQLike", function ArticleFactory($http, $httpParamSerializerJQLike){
     var exports = {};
 
     exports.getArticle = function(format, title){
@@ -70,6 +70,13 @@ app.factory('ArticleFactory', ["$http", function ArticleFactory($http){
         return $http({
             method: 'POST',
             url: '/history/get/'+article
+        })
+    };
+
+    exports.getArchivedArticle = function(title, time){
+        return $http({
+            method: 'GET',
+            url: '/archives/get/'+title+"/"+time+"/html",
         })
     };
 

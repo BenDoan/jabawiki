@@ -222,10 +222,20 @@ app.controller("HistoryCtrl", ['$scope',
 
             ArticleFactory.getArticleHistory($scope.title).
                 success(function(data, status, headers, config) {
-                    console.log("Got hist")
                     $scope.history = data
                 }).
                 error(function(data, status, headers, config) {
-                    console.log("Error getting article history: " + status)
+                    console.log("Error getting article history: " + data)
                 });
+
+            $scope.view = function(title, histItem){
+                ArticleFactory.getArchivedArticle(title, histItem.time).
+                    success(function(data, status, headers, config){
+                        $scope.preview = $sce.trustAsHtml(data);
+                        $scope.previewHistItem = histItem
+                    }).
+                    error(function(data, status, headers, config){
+                        console.log("Couldn't get archived article: " + data);
+                    });
+            }
     }]);

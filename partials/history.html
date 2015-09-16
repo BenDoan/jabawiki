@@ -12,8 +12,13 @@
         <td>{{histItem.ip}}</td>
         <td>{{histItem.summary}}</td>
         <td>
-            <a href="/archives/get/{{title}}/{{histItem.time}}">view</a> |
-            <a class="wikilink-new" href="/archives/get/{{title}}/{{histItem.time}}">revert</a>
+            <button class="btn btn-xs" ng-click="view(title, histItem)" href="/archives/get/{{title}}/{{histItem.time}}">view</button> |
+            <button class="btn btn-xs btn-danger" ng-click="">revert</button>
         </td>
     </tr>
 </table>
+
+<div ng-if="preview">
+    Date: {{previewHistItem.time*1000 | date:'yyyy-MM-dd HH:mm:ss'}} | Summary: "{{previewHistItem.summary}}"
+    <div class="preview-box" ng-bind-html="preview"></div>
+</div>
