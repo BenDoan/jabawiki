@@ -495,7 +495,6 @@ func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
 	format := vars["format"]
 
 	archiveFilename := fmt.Sprintf("%s.%s.txt.gz", title, time)
-	fmt.Printf("archive name is: %v\n", archiveFilename)
 	f, err := os.Open(filepath.Join(getDataDirPath(), "archive", archiveFilename))
 
 	if err != nil {
