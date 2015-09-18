@@ -20,21 +20,31 @@ type Article struct {
 }
 
 type ArticleStore struct {
-	availableArticles map[string]bool
+	availableArticles map[string]ArticleMetadata
 	articles          map[string]Article
 }
 
 func NewArticleStore() ArticleStore {
-	return ArticleStore{make(map[string]bool), make(map[string]Article)}
+	return ArticleStore{make(map[string]ArticleMetadata), make(map[string]Article)}
 }
 
-func (a ArticleStore) AddAvailableArticle(key string) {
-	a.availableArticles[key] = true
+func (a ArticleStore) AddAvailableArticle(title string) error {
+	metadata, err := GetMetadata(title)
+	if err != nil {
+		return err
+	}
+
+	a.availableArticles[title] = metadata
+	return nil
 }
 
-func (a ArticleStore) IsArticleAvailable(key string) bool {
-	_, ok := a.availableArticles[key]
+func (a ArticleStore) IsArticleAvailable(title string) bool {
+	_, ok := a.availableArticles[title]
 	return ok
+}
+
+func (a ArticleStore) GetArticleMetadata(title string) ArticleMetadata {
+	return a.availableArticles[title]
 }
 
 func (a ArticleStore) AddArticle(key string, article Article) {
@@ -48,6 +58,18 @@ func (a ArticleStore) AddArticleFromIncoming(key string, incomingArticle Incomin
 	a.articles[key] = article
 }
 
+func GetMetadata(title string) (ArticleMetadata, error) {
+	articleMetadataPath := filepath.Join(getDataDirPath(), "metadata", title+".meta")
+	meta, err := ioutil.ReadFile(articleMetadataPath)
+
+	if err != nil {
+		return ArticleMetadata{}, err
+	}
+
+	metaVals := strings.Split(string(meta), "\n")
+	return ArticleMetadata{Permission: metaVals[0]}, nil
+}
+
 func (a ArticleStore) GetArticle(title string) (Article, error) {
 	if cachedArticle, ok := a.articles[title]; ok {
 		return cachedArticle, nil
@@ -59,14 +81,11 @@ func (a ArticleStore) GetArticle(title string) (Article, error) {
 		return Article{}, err
 	}
 
-	articleMetadataPath := filepath.Join(getDataDirPath(), "metadata", title+".meta")
-	meta, err := ioutil.ReadFile(articleMetadataPath)
+	metadata, err := GetMetadata(title)
+
 	if err != nil {
 		return Article{}, err
 	}
-
-	metaVals := strings.Split(string(meta), "\n")
-	metadata := ArticleMetadata{Permission: metaVals[0]}
 
 	article := Article{Title: title, Body: string(body), Metadata: metadata}
 	a.articles[title] = article
@@ -96,7 +115,19 @@ func processMarkdown(text []byte) []byte {
 		articleName := str[2 : len(str)-2] //remove brackets
 		spacedArticleName := strings.Replace(articleName, "_", " ", -1)
 		if articleStore.IsArticleAvailable(articleName) {
-			return fmt.Sprintf(`<a href="/w/%s">%s</a>`, articleName, spacedArticleName)
+			meta := articleStore.GetArticleMetadata(articleName)
+
+			icon := ""
+			switch meta.Permission {
+			case "public":
+				icon = "unlock"
+			case "private":
+				icon = "lock"
+			case "registered":
+				icon = "lock"
+			}
+
+			return fmt.Sprintf(`<a href="/w/%s" class="permission-%s">%s<span class="glyphicon glyphicon-%s"></span></a>`, articleName, meta.Permission, spacedArticleName, icon)
 		} else {
 			return fmt.Sprintf(`<a class="wikilink-new" href="/w/%s">%s</a>`, articleName, spacedArticleName)
 		}
@@ -132,6 +163,7 @@ func renderMarkdown(body []byte) []byte {
 
 	policy := bluemonday.UGCPolicy()
 	policy.AllowAttrs("class").OnElements("a")
+	policy.AllowAttrs("class").OnElements("span")
 
 	safe := policy.SanitizeBytes(unsafe)
 

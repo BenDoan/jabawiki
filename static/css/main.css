@@ -139,3 +139,10 @@ div.error-alert {
 .black {
     color: #000;
 }
+
+.glyphicon.glyphicon-lock {
+    /*margin-left: 5px;*/
+    font-size:7px;
+    color: #49BF9D;
+    opacity: .8;
+}
