@@ -29,6 +29,10 @@ var app = angular.module('wiki', ['ngRoute', 'angular-loading-bar']).
                 templateUrl: 'partials/profile.html',
                 controller: 'ProfileCtrl'
             }).
+            when('/uploadimage', {
+                templateUrl: 'partials/uploadimage.html',
+                controller: 'UploadImageCtrl'
+            }).
             otherwise({
                 redirectTo: '/'
             });

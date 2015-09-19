@@ -239,3 +239,12 @@ app.controller("HistoryCtrl", ['$scope',
                     });
             }
     }]);
+
+app.controller("UploadImageCtrl", ['$scope',
+                                   '$routeParams',
+                                   '$location',
+                                   '$sce',
+                                   '$timeout',
+                                   'ArticleFactory',
+    function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+    }]);
