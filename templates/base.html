@@ -25,6 +25,7 @@
 
             <ol class="breadcrumb">
                 <li><a href="/"><span class="black glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
+                <li class="action" ng-if="title"><a href="/w/{{title}}">View</a></li>
                 <li class="action" ng-if="title"><a href="/w/{{title}}/edit">Edit</a></li>
                 <li class="action" ng-if="title"><a href="/w/{{title}}/history">History</a></li>
                 <li class="action" ng-if="!user"><a href="/login">login / register</a></li>
