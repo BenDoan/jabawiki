@@ -190,15 +190,15 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 		return
 	}
 
-	articleStore.AddAvailableArticle(article.Title)
-	articleStore.AddArticleFromIncoming(article.Title, article)
-
 	err = writeMetadata(article)
 	if err != nil {
 		log.Error("Error writing metadata: %s", err)
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
 		return
 	}
+
+	articleStore.AddAvailableArticle(article.Title)
+	articleStore.AddArticleFromIncoming(article.Title, article)
 
 	writeHistory(w, r, article)
 	archiveArticle(w, article)
