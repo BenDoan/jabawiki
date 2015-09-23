@@ -25,10 +25,10 @@
 
             <ol class="breadcrumb">
                 <li><a href="/"><span class="black glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
-                <li class="action" ng-if="title"><a href="/w/{{title}}">View</a></li>
-                <li class="action" ng-if="title"><a href="/w/{{title}}/edit">Edit</a></li>
-                <li class="action" ng-if="title"><a href="/w/{{title}}/history">History</a></li>
-                <li class="action" ng-if="!user"><a href="/login">login / register</a></li>
+                <li ng-class="{selected: page == 'view'}" class="action" ng-if="title"><a href="/w/{{title}}">View</a></li>
+                <li ng-class="{selected: page == 'edit'}" class="action" ng-if="title"><a href="/w/{{title}}/edit">Edit</a></li>
+                <li ng-class="{selected: page == 'history'}" class="action" ng-if="title"><a href="/w/{{title}}/history">History</a></li>
+                <li ng-class="{selected: page == 'login'}" class="action" ng-if="!user"><a href="/login">login / register</a></li>
                 <li class="action" ng-if="user"><a href="" ng-click="logoutUser()">logout</a></li>
             </ol>
 

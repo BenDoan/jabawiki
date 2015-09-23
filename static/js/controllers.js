@@ -11,7 +11,7 @@ app.controller("MasterCtrl", ['$scope',
                 $scope.error = false
             })
 
-        $scope.pageTitle = "Wiki";
+        $scope.$parent.pageTitle = "Wiki";
         ArticleFactory.getUser().
             success(function(data, status, headers, config){
                 $scope.user = data
@@ -43,6 +43,7 @@ app.controller("ArticleViewCtrl", ['$scope',
                                    '$timeout',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+        $scope.$parent.page = "view"
         title = $routeParams.title;
         $scope.$parent.title = title
         $scope.display_title = title.replace(/_/g, " ");
@@ -80,6 +81,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                                    '$sce',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $window, $sce, ArticleFactory){
+        $scope.$parent.page = "edit"
         title = $routeParams.title;
         $scope.$parent.title = title
         $scope.article = {}
@@ -143,6 +145,7 @@ app.controller("LoginCtrl", ['$scope',
                                    '$timeout',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+        $scope.$parent.page = "login"
         $scope.login = function(article){
             ArticleFactory.loginUser($scope.email, $scope.password).
                 success(function(data, status, headers, config) {
@@ -191,6 +194,7 @@ app.controller("ProfileCtrl", ['$scope',
                                    '$timeout',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+        $scope.$parent.page = "profile"
     }]);
 
 app.controller("IndexCtrl", ['$scope',
@@ -200,6 +204,7 @@ app.controller("IndexCtrl", ['$scope',
                                    '$timeout',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+            $scope.$parent.page = "index"
             ArticleFactory.getAllArticles().
                 success(function(data, status, headers, config) {
                     $scope.articles = data
@@ -217,6 +222,7 @@ app.controller("HistoryCtrl", ['$scope',
                                    '$timeout',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+            $scope.$parent.page = 'history'
             $scope.title = $routeParams.title;
             $scope.$parent.title = $scope.title;
 
@@ -267,4 +273,5 @@ app.controller("UploadImageCtrl", ['$scope',
                                    '$timeout',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
+        $scope.$parent.page = 'uploadimage'
     }]);

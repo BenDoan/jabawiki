@@ -146,3 +146,7 @@ div.error-alert {
     color: #49BF9D;
     opacity: .8;
 }
+
+.selected > a {
+    border-bottom: 1px solid red;
+}
