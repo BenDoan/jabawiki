@@ -30,18 +30,21 @@ print("Building base")
 if os.path.isdir("releases"):
     shutil.rmtree("releases")
 
+# Make releases dir
 os.mkdir("releases")
 os.chdir("releases")
 
+# Clone project
 perform.git("clone", "..", "basewiki")
-
 os.chdir("basewiki")
-
 shutil.rmtree(".git")
+
+# Install js/css depdencies with bower
 perform.bower("install")
 
 os.chdir("..")
 
+# Build release for each target
 for op_sys, arch in targets:
     name = "{}_{}".format(op_sys, arch)
     print("Building", name)
@@ -52,6 +55,7 @@ for op_sys, arch in targets:
 
     os.chdir("..")
 
+    # Special case: archive windows stuff in zips, otherwise use tar.gz
     if op_sys != "windows":
         archive_name = "jabawiki-{}-{}_{}.tar.gz".format(sys.argv[1], op_sys, arch)
         perform.tar("-czf", archive_name, "jabawiki")
@@ -61,4 +65,5 @@ for op_sys, arch in targets:
 
     shutil.rmtree("jabawiki")
 
+# Clean up
 shutil.rmtree("basewiki")

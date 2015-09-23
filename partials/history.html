@@ -12,8 +12,8 @@
         <td>{{histItem.ip}}</td>
         <td>{{histItem.summary}}</td>
         <td>
-            <button class="btn btn-xs" ng-click="view(title, histItem)" href="/archives/get/{{title}}/{{histItem.time}}">view</button> |
-            <button class="btn btn-xs btn-danger" ng-click="">revert</button>
+            <button class="btn btn-xs" ng-click="view(title, histItem)">view</button> |
+            <button class="btn btn-xs btn-danger" ng-click="revert(title, histItem)">revert to</button>
         </td>
     </tr>
 </table>

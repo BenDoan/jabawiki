@@ -218,7 +218,7 @@ app.controller("HistoryCtrl", ['$scope',
                                    'ArticleFactory',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
             $scope.title = $routeParams.title;
-            $scope.$parent.title = $scope.title
+            $scope.$parent.title = $scope.title;
 
             ArticleFactory.getArticleHistory($scope.title).
                 success(function(data, status, headers, config) {
@@ -229,10 +229,30 @@ app.controller("HistoryCtrl", ['$scope',
                 });
 
             $scope.view = function(title, histItem){
-                ArticleFactory.getArchivedArticle(title, histItem.time).
+                ArticleFactory.getArchivedArticle(title, histItem.time, "html").
                     success(function(data, status, headers, config){
                         $scope.preview = $sce.trustAsHtml(data);
                         $scope.previewHistItem = histItem
+                    }).
+                    error(function(data, status, headers, config){
+                        console.log("Couldn't get archived article: " + data);
+                    });
+            }
+
+            $scope.revert = function(title, histItem){
+                ArticleFactory.getArchivedArticle(title, histItem.time, "markdown").
+                    success(function(data, status, headers, config){
+                        message = "Reverted to \"" + histItem.summary+"\""
+                        revert_data = {"title": title, "body": data, "summary": message}
+                        ArticleFactory.updateArticle(revert_data).
+                            success(function(data, status, headers, config) {
+                                $scope.$parent.error = [message, "success"]
+                            }).
+                            error(function(data, status, headers, config) {
+                                console.log("Couldn't update article");
+                                $scope.$parent.error = ["Error while updating article: "+data, "danger"]
+                            });
+
                     }).
                     error(function(data, status, headers, config){
                         console.log("Couldn't get archived article: " + data);

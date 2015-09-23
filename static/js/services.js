@@ -73,10 +73,10 @@ app.factory('ArticleFactory', ["$http", "$httpParamSerializerJQLike", function A
         })
     };
 
-    exports.getArchivedArticle = function(title, time){
+    exports.getArchivedArticle = function(title, time, format){
         return $http({
             method: 'GET',
-            url: '/archives/get/'+title+"/"+time+"/html",
+            url: '/archives/get/'+title+"/"+time+"/"+format,
         })
     };
 
