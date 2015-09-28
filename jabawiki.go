@@ -251,7 +251,6 @@ func writeHistory(w http.ResponseWriter, r *http.Request, article IncomingArticl
 	} else {
 		creator = r.RemoteAddr
 	}
-	fmt.Printf("Creator is: %v", creator)
 
 	history := fmt.Sprintf("%d | %s | %s\n", time.Now().Unix(), creator, article.Summary)
 	fmt.Fprint(historyFile, history)
