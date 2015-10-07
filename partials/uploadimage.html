@@ -1,14 +1,13 @@
 <div class="row">
-    <h2>Login</h2>
-    <form class="col-xs-4 col-sm-4 col-md-4">
+    <h2>Upload Image</h2>
+    <form class="col-xs-4 col-sm-4 col-md-4" action="/image/upload" enctype="multipart/form-data" method="POST">
         <label for="title">Title</label>
-        <input ng-model="title" class="form-control" type="email" name="title" >
+        <input ng-model="title" class="form-control" type="text" name="title" >
 
         <label for="image">Image</label>
-        <input ng-model="image" type="file" name="email" >
+        <input type="file" name="file" >
 
         <br>
-        <button class="btn btn-primary" ng-click="login()">Login</button>
+        <input type="submit" class="btn btn-primary" value="Upload" />
     </form>
 </div>
-

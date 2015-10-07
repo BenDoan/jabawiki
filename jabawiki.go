@@ -2,6 +2,7 @@ package main
 
 import (
 	"compress/gzip"
+	"crypto/md5"
 	"crypto/rand"
 	"encoding/csv"
 	"encoding/json"
@@ -541,6 +542,50 @@ func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func ComputeMd5(filePath string) ([]byte, error) {
+	var result []byte
+	file, err := os.Open(filePath)
+	if err != nil {
+		return result, err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return result, err
+	}
+
+	return hash.Sum(result), nil
+}
+
+func HandleUploadImage(w http.ResponseWriter, r *http.Request) {
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		msg := "Didn't receive file"
+		log.Info("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
+
+	filename := fmt.Sprintf("%d-%s", time.Now().Unix(), header.Filename)
+	out, err := os.Create(filepath.Join(getDataDirPath(), "images", filename))
+	if err != nil {
+		log.Error("Couldn't create file: %v", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
+		return
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, file)
+	if err != nil {
+		log.Error("Couldn't copy file to filesystem: %v", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
+		return
+	}
+	fmt.Fprintf(w, header.Filename)
+}
+
 func getDataDirPath() string {
 	return filepath.FromSlash(conf.DataDir)
 }
@@ -665,23 +710,27 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", BaseHandler)
-	r.HandleFunc("/article/{title}", HandleArticle)
+	r.HandleFunc(filepath.FromSlash("/"), BaseHandler)
+	r.HandleFunc(filepath.FromSlash("/article/{title}"), HandleArticle)
 
-	r.HandleFunc("/articles/all", HandleGetAllArticleNames)
-	r.HandleFunc("/articles/preview", HandleGetPreview)
+	r.HandleFunc(filepath.FromSlash("/articles/all"), HandleGetAllArticleNames)
+	r.HandleFunc(filepath.FromSlash("/articles/preview"), HandleGetPreview)
 
-	r.HandleFunc("/user/register", HandleRegister)
-	r.HandleFunc("/user/login", HandleLogin)
-	r.HandleFunc("/user/logout", HandleLogout)
-	r.HandleFunc("/user/get", HandleUserGet)
+	r.HandleFunc(filepath.FromSlash("/user/register"), HandleRegister)
+	r.HandleFunc(filepath.FromSlash("/user/login"), HandleLogin)
+	r.HandleFunc(filepath.FromSlash("/user/logout"), HandleLogout)
+	r.HandleFunc(filepath.FromSlash("/user/get"), HandleUserGet)
 
-	r.HandleFunc("/history/get/{title}", HandleHistoryGet)
+	r.HandleFunc(filepath.FromSlash("/image/upload"), HandleUploadImage)
 
-	r.HandleFunc("/archives/get/{title}/{archiveTime}/{format}", HandleArchiveGet)
+	r.HandleFunc(filepath.FromSlash("/history/get/{title}"), HandleHistoryGet)
 
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	r.PathPrefix("/partials/").Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))
+	r.HandleFunc(filepath.FromSlash("/archives/get/{title}/{archiveTime}/{format}"), HandleArchiveGet)
+
+	r.PathPrefix("/images/").Handler(http.StripPrefix("/images/", http.FileServer(http.Dir(filepath.Join(getDataDirPath(), "images")))))
+
+	r.PathPrefix(filepath.FromSlash("/static/")).Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	r.PathPrefix(filepath.FromSlash("/partials/")).Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))
 
 	r.PathPrefix("/").HandlerFunc(BaseHandler)
 
