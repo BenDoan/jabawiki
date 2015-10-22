@@ -88,29 +88,18 @@ func BaseHandler(w http.ResponseWriter, r *http.Request) {
 func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
-	session, err := store.Get(r, "user")
-
+	user, err := getUserFromSession(r)
 	if err != nil {
-		log.Error("Session had error: %s", err)
-		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
-		return
-	}
-
-	user := User{}
-	if data, ok := session.Values["id"]; ok {
-		if userId, ok := data.(string); ok {
-			if _, ok = users[userId]; ok {
-				tmpUser := users[userId]
-				user = tmpUser
-			}
-		}
+		log.Debug("User not found: %v", err)
+		//http.Error(w, "Not allowed", http.StatusUnauthorized)
+		//return
 	}
 
 	vars := mux.Vars(r)
 	title := vars["title"]
 	article, err := articleStore.GetArticle(title)
 
-	if isUserAllowed(user, article) {
+	if isUserAllowed(user, article.Metadata) {
 		switch r.Method {
 		case "GET":
 			GetArticle(w, r, title)
@@ -125,14 +114,13 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func isUserAllowed(user User, article Article) bool {
+func isUserAllowed(user User, articleMetadata ArticleMetadata) bool {
 	hasUser := !reflect.DeepEqual(user, User{})
-	hasArticle := !reflect.DeepEqual(article, Article{})
+	hasArticle := !reflect.DeepEqual(articleMetadata, ArticleMetadata{})
 
 	return hasUser && user.Role == Admin ||
-		hasArticle && article.Metadata.Permission == "public" ||
-		hasUser && hasArticle && article.Metadata.Permission == "registered" && user.Role == Verified
-
+		hasArticle && articleMetadata.Permission == "public" ||
+		hasUser && hasArticle && articleMetadata.Permission == "registered" && user.Role == Verified
 }
 
 func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
@@ -446,10 +434,39 @@ func HandleGetPreview(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(articlesJson))
 }
 
+func CanAccessTitle(title string, r *http.Request) (bool, error) {
+	user, err := getUserFromSession(r)
+
+	if err != nil {
+		return false, err
+	}
+
+	metadata, err := GetMetadata(title)
+	if err != nil {
+		return false, err
+	}
+
+	return isUserAllowed(user, metadata), nil
+}
+
 // HandleHistoryGet returns the full history of a specific page
 func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	title := vars["title"]
+
+	canAccess, err := CanAccessTitle(title, r)
+
+	if err != nil {
+		msg := "User not authorized"
+		log.Debug("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusUnauthorized)
+	}
+
+	if !canAccess {
+		log.Debug("User is not allowed to access page: %v", err)
+		http.Error(w, "Not allowed", http.StatusUnauthorized)
+		return
+	}
 
 	histfileName := fmt.Sprintf("%s.hist", title)
 	hist, err := ioutil.ReadFile(filepath.Join(getDataDirPath(), "history", histfileName))
@@ -502,6 +519,20 @@ func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
 	title := vars["title"]
 	time := vars["archiveTime"]
 	format := vars["format"]
+
+	canAccess, err := CanAccessTitle(title, r)
+
+	if err != nil {
+		msg := "User not authorized"
+		log.Debug("%s: %v", msg, err)
+		http.Error(w, msg, http.StatusUnauthorized)
+	}
+
+	if !canAccess {
+		log.Debug("User is not allowed to access page: %v", err)
+		http.Error(w, "Not allowed", http.StatusUnauthorized)
+		return
+	}
 
 	archiveFilename := fmt.Sprintf("%s.%s.txt.gz", title, time)
 	f, err := os.Open(filepath.Join(getDataDirPath(), "archive", archiveFilename))
