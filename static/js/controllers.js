@@ -111,10 +111,13 @@ app.controller('ArticleEditCtrl', ['$scope',
 
             });
 
-        $scope.update = function(article){
+        $scope.update = function(article, redirect){
             ArticleFactory.updateArticle(article).
                 success(function(data, status, headers, config) {
-                    $scope.viewArticle()
+                    $scope.$parent.error = ["Article saved", "success"]
+                    if (redirect){
+                        $scope.viewArticle()
+                    }
                 }).
                 error(function(data, status, headers, config) {
                     console.log("Couldn't update article");
