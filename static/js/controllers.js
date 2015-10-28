@@ -45,7 +45,7 @@ app.controller("ArticleViewCtrl", ['$scope',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
         $scope.$parent.page = "view"
         title = $routeParams.title;
-        $scope.$parent.title = title
+        $scope.$parent.pageTitle = title  + " - jabawiki";
         $scope.display_title = title.replace(/_/g, " ");
 
         $scope.article = {};
@@ -83,7 +83,7 @@ app.controller('ArticleEditCtrl', ['$scope',
     function($scope, $routeParams, $location, $window, $sce, ArticleFactory){
         $scope.$parent.page = "edit"
         title = $routeParams.title;
-        $scope.$parent.title = title
+        $scope.$parent.pageTitle = title  + " - jabawiki";
         $scope.article = {}
 
         ArticleFactory.getArticle('markdown', title).
