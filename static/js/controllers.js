@@ -11,7 +11,6 @@ app.controller("MasterCtrl", ['$scope',
                 $scope.error = false
             })
 
-        $scope.$parent.pageTitle = "Wiki";
         ArticleFactory.getUser().
             success(function(data, status, headers, config){
                 $scope.user = data
@@ -45,7 +44,7 @@ app.controller("ArticleViewCtrl", ['$scope',
     function($scope, $routeParams, $location, $sce, $timeout, ArticleFactory){
         $scope.$parent.page = "view"
         title = $routeParams.title;
-        $scope.$parent.pageTitle = title  + " - jabawiki";
+        $scope.$parent.title = title
         $scope.display_title = title.replace(/_/g, " ");
 
         $scope.article = {};
@@ -83,7 +82,7 @@ app.controller('ArticleEditCtrl', ['$scope',
     function($scope, $routeParams, $location, $window, $sce, ArticleFactory){
         $scope.$parent.page = "edit"
         title = $routeParams.title;
-        $scope.$parent.pageTitle = title  + " - jabawiki";
+        $scope.$parent.title = title
         $scope.article = {}
 
         ArticleFactory.getArticle('markdown', title).
