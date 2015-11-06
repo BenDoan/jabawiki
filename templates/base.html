@@ -22,9 +22,6 @@
         <div class="container">
             <div class="page-alert alert alert-{{ error[1] }}" ng-if="error" ng-bind="error[0]"></div>
 
-            <span class="pull-right"><a href="/profile">{{ user.Name }}</a></span>
-            <div ng-view></div>
-
             <ol class="breadcrumb">
                 <li><a href="/"><span class="black glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
                 <li ng-class="{selected: page == 'view'}" class="action" ng-if="title"><a href="/w/{{title}}">View</a></li>
@@ -32,7 +29,10 @@
                 <li ng-class="{selected: page == 'history'}" class="action" ng-if="title"><a href="/w/{{title}}/history">History</a></li>
                 <li ng-class="{selected: page == 'login'}" class="action" ng-if="!user"><a href="/login">login / register</a></li>
                 <li class="action" ng-if="user"><a href="" ng-click="logoutUser()">logout</a></li>
+                <li ng-if="user" class="pull-right"><span class="pull-right"><a href="/profile">{{ user.Name }}</a></span>
             </ol>
+            <div ng-view></div>
+
 
         </div> <!-- /container -->
 
