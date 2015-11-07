@@ -15,3 +15,6 @@ File based personal wiki.
 - Download go dependencies with ```go get```
 - Download javascript dependencies with ```bower install```
 - Build the go code with ```go build```
+
+## Screenshot
+![screenshot](screenshot.png "Screenshot")
