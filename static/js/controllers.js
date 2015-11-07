@@ -116,6 +116,8 @@ app.controller('ArticleEditCtrl', ['$scope',
                     $scope.$parent.error = ["Article saved", "success"]
                     if (redirect){
                         $scope.viewArticle()
+                    }else{
+                        $scope.article.summary = ""
                     }
                 }).
                 error(function(data, status, headers, config) {
