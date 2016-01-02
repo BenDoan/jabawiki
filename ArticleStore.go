@@ -5,7 +5,6 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday"
 	"io/ioutil"
-	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -59,7 +58,7 @@ func (a ArticleStore) AddArticleFromIncoming(key string, incomingArticle Incomin
 }
 
 func GetMetadata(title string) (ArticleMetadata, error) {
-	articleMetadataPath := filepath.Join(getDataDirPath(), "metadata", title+".meta")
+	articleMetadataPath := AbsPathFromExe(getDataDirPath(), "metadata", title+".meta")
 	meta, err := ioutil.ReadFile(articleMetadataPath)
 
 	if err != nil {
@@ -75,7 +74,7 @@ func (a ArticleStore) GetArticle(title string) (Article, error) {
 		return cachedArticle, nil
 	}
 
-	articlePath := filepath.Join(getDataDirPath(), "articles", title+".txt")
+	articlePath := AbsPathFromExe(getDataDirPath(), "articles", title+".txt")
 	body, err := ioutil.ReadFile(articlePath)
 	if err != nil {
 		return Article{}, err

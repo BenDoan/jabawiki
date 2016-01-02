@@ -1,7 +1,6 @@
 Domain = "localhost"
 Port = 8080
 EnableSSL = false
-# Options: CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG
-LogLevel = "INFO"
-DataDir = "data"
+LogLevel = "INFO" # Options: CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG
+DataDir = "data" # Relative to jabawiki dir
 CookieSecret = "secretchangeme!"

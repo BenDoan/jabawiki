@@ -49,6 +49,8 @@ var (
 	store        *sessions.CookieStore
 	articleStore ArticleStore
 	conf         Config
+
+	exePath, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 )
 
 const (
@@ -87,14 +89,14 @@ func HandleArticle(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	title := vars["title"]
 	article, err := articleStore.GetArticle(title)
+	hasArticle := true
 
 	if err != nil {
 		log.Debug("Couldn't find article: %v", err)
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
+		hasArticle = false
 	}
 
-	if isUserAllowed(user, article.Metadata) {
+	if !hasArticle || isUserAllowed(user, article.Metadata) {
 		switch r.Method {
 		case "GET":
 			GetArticle(w, r, title)
@@ -156,7 +158,7 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	}
 
 	// write article
-	articlePath := filepath.Join(getDataDirPath(), "articles", article.Title+".txt")
+	articlePath := AbsPathFromExe(getDataDirPath(), "articles", article.Title+".txt")
 	err = ioutil.WriteFile(articlePath, []byte(article.Body), 0644)
 
 	if err != nil {
@@ -175,13 +177,30 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	articleStore.AddAvailableArticle(article.Title)
 	articleStore.AddArticleFromIncoming(article.Title, article)
 
-	writeHistory(w, r, article)
-	archiveArticle(w, article)
+	creator := ""
+	user, err := getUserFromSession(r)
+	if err == nil {
+		creator = user.Name
+	} else {
+		creator = r.RemoteAddr
+	}
+
+	err = writeHistory(article, creator)
+	if err != nil {
+		log.Error("Error writing history: %s", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
+	}
+
+	err = archiveArticle(article)
+	if err != nil {
+		log.Error("Error archiving article: %s", err)
+		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
+	}
 }
 
 func writeMetadata(article IncomingArticle) error {
 	metadataString := fmt.Sprintf("%s\n%s\n%s", article.Permission, "", "")
-	metadataFilePath := filepath.Join(getDataDirPath(), "metadata", fmt.Sprintf("%s.meta", article.Title))
+	metadataFilePath := AbsPathFromExe(getDataDirPath(), "metadata", fmt.Sprintf("%s.meta", article.Title))
 
 	err := ioutil.WriteFile(metadataFilePath, []byte(metadataString), 0644)
 
@@ -191,48 +210,39 @@ func writeMetadata(article IncomingArticle) error {
 	return nil
 }
 
-func archiveArticle(w http.ResponseWriter, article IncomingArticle) {
-	archiveFilePath := filepath.Join(getDataDirPath(), "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
+func archiveArticle(article IncomingArticle) error {
+	archiveFilePath := AbsPathFromExe(getDataDirPath(), "archive", fmt.Sprintf("%s.%d.txt.gz", article.Title, time.Now().Unix()))
 	archiveFile, err := os.OpenFile(archiveFilePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	gzipWriter, err := gzip.NewWriterLevel(archiveFile, gzip.DefaultCompression)
 	defer gzipWriter.Close()
 
 	if err != nil {
-		log.Error("Error initializing gzip writer: %v", err)
-		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
-		return
+		return err
 	}
 
 	gzipWriter.Write([]byte(article.Body))
 	gzipWriter.Flush()
 
+	return nil
 }
 
-func writeHistory(w http.ResponseWriter, r *http.Request, article IncomingArticle) {
-	historyFilePath := filepath.Join(getDataDirPath(), "history", article.Title+".hist")
+func writeHistory(article IncomingArticle, creator string) error {
+	historyFilePath := AbsPathFromExe(getDataDirPath(), "history", article.Title+".hist")
 	historyFile, err := os.OpenFile(historyFilePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
 
 	if err != nil {
-		log.Error("Error saving history: %s", err)
-		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
-		return
-	}
-
-	creator := ""
-	user, err := getUserFromSession(r)
-	if err == nil {
-		creator = user.Name
-	} else {
-		creator = r.RemoteAddr
+		return err
 	}
 
 	history := fmt.Sprintf("%d | %s | %s\n", time.Now().Unix(), creator, article.Summary)
 	fmt.Fprint(historyFile, history)
+
+	return nil
 }
 
 func HandleGetAllArticleNames(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir(filepath.Join(getDataDirPath(), "articles"))
+	files, err := ioutil.ReadDir(AbsPathFromExe(getDataDirPath(), "articles"))
 
 	if err != nil {
 		log.Error("Couldn't get articles", err)
@@ -315,7 +325,7 @@ func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	histfileName := fmt.Sprintf("%s.hist", title)
-	hist, err := ioutil.ReadFile(filepath.Join(getDataDirPath(), "history", histfileName))
+	hist, err := ioutil.ReadFile(AbsPathFromExe(getDataDirPath(), "history", histfileName))
 	if err != nil {
 		msg := "Couldn't find article history"
 		log.Debug("%s: %v", msg, err)
@@ -381,7 +391,7 @@ func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	archiveFilename := fmt.Sprintf("%s.%s.txt.gz", title, time)
-	f, err := os.Open(filepath.Join(getDataDirPath(), "archive", archiveFilename))
+	f, err := os.Open(AbsPathFromExe(getDataDirPath(), "archive", archiveFilename))
 
 	if err != nil {
 		msg := "Couldn't find article archive"
@@ -446,7 +456,7 @@ func HandleUploadImage(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	filename := fmt.Sprintf("%d-%s", time.Now().Unix(), header.Filename)
-	out, err := os.Create(filepath.Join(getDataDirPath(), "images", filename))
+	out, err := os.Create(AbsPathFromExe(getDataDirPath(), "images", filename))
 	if err != nil {
 		log.Error("Couldn't create file: %v", err)
 		http.Error(w, INTERNAL_SERVER_ERROR_MSG, http.StatusInternalServerError)
@@ -461,10 +471,6 @@ func HandleUploadImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, header.Filename)
-}
-
-func getDataDirPath() string {
-	return filepath.FromSlash(conf.DataDir)
 }
 
 func init() {
@@ -502,7 +508,7 @@ func init() {
 	log.SetBackend(log_backend_level)
 
 	// load base template
-	baseTemplateBytes, err := ioutil.ReadFile(filepath.FromSlash("templates/base.html"))
+	baseTemplateBytes, err := ioutil.ReadFile(AbsPathFromExe("templates", "base.html"))
 	if err != nil {
 		log.Fatal("Error reading base template: %v", err)
 		panic(err)
@@ -511,7 +517,7 @@ func init() {
 
 	// populate articles cache
 	articleStore = NewArticleStore()
-	articleDir, err := ioutil.ReadDir(filepath.Join(getDataDirPath(), "articles"))
+	articleDir, err := ioutil.ReadDir(AbsPathFromExe(getDataDirPath(), "articles"))
 
 	if err != nil {
 		log.Fatal("Error reading articles: %v", err)
@@ -530,7 +536,7 @@ func init() {
 	log.Debug("Found %d available articles", numArticles)
 
 	// populate users cache
-	usersFilePath := filepath.Join(getDataDirPath(), "users.txt")
+	usersFilePath := AbsPathFromExe(getDataDirPath(), "users.txt")
 	csvfile, err := os.Open(usersFilePath)
 
 	if err != nil {
@@ -587,27 +593,32 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	r := mux.NewRouter()
-	r.HandleFunc(filepath.FromSlash("/"), BaseHandler)
-	r.HandleFunc(filepath.FromSlash("/article/{title}"), HandleArticle)
+	r.HandleFunc("/", BaseHandler)
+	r.HandleFunc("/article/{title}", HandleArticle)
 
-	r.HandleFunc(filepath.FromSlash("/articles/all"), HandleGetAllArticleNames)
-	r.HandleFunc(filepath.FromSlash("/articles/preview"), HandleGetPreview)
+	r.HandleFunc("/articles/all", HandleGetAllArticleNames)
+	r.HandleFunc("/articles/preview", HandleGetPreview)
 
-	r.HandleFunc(filepath.FromSlash("/user/register"), HandleRegister)
-	r.HandleFunc(filepath.FromSlash("/user/login"), HandleLogin)
-	r.HandleFunc(filepath.FromSlash("/user/logout"), HandleLogout)
-	r.HandleFunc(filepath.FromSlash("/user/get"), HandleUserGet)
+	r.HandleFunc("/user/register", HandleRegister)
+	r.HandleFunc("/user/login", HandleLogin)
+	r.HandleFunc("/user/logout", HandleLogout)
+	r.HandleFunc("/user/get", HandleUserGet)
 
-	r.HandleFunc(filepath.FromSlash("/image/upload"), HandleUploadImage)
+	r.HandleFunc("/image/upload", HandleUploadImage)
 
-	r.HandleFunc(filepath.FromSlash("/history/get/{title}"), HandleHistoryGet)
+	r.HandleFunc("/history/get/{title}", HandleHistoryGet)
 
-	r.HandleFunc(filepath.FromSlash("/archives/get/{title}/{archiveTime}/{format}"), HandleArchiveGet)
+	r.HandleFunc("/archives/get/{title}/{archiveTime}/{format}", HandleArchiveGet)
 
-	r.PathPrefix("/images/").Handler(http.StripPrefix("/images/", http.FileServer(http.Dir(filepath.Join(getDataDirPath(), "images")))))
+	r.PathPrefix("/images/").Handler(http.StripPrefix("/images/", http.FileServer(http.Dir(AbsPathFromExe(getDataDirPath(), "images")))))
 
-	r.PathPrefix(filepath.FromSlash("/static/")).Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	r.PathPrefix(filepath.FromSlash("/partials/")).Handler(http.StripPrefix("/partials/", http.FileServer(http.Dir("partials"))))
+	r.PathPrefix("/static/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, AbsPathFromExe(r.URL.Path[1:]))
+	})
+
+	r.PathPrefix("/partials/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, AbsPathFromExe(r.URL.Path[1:]))
+	})
 
 	r.PathPrefix("/").HandlerFunc(BaseHandler)
 

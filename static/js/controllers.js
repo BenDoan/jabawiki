@@ -122,7 +122,7 @@ app.controller('ArticleEditCtrl', ['$scope',
                 }).
                 error(function(data, status, headers, config) {
                     console.log("Couldn't update article");
-                    $scope.$parent.error = ["Error while updating article: "+data, "danger"]
+                    $scope.$parent.error = ["Error while updating article", "danger"]
                 });
         };
 
