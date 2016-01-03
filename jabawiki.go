@@ -22,7 +22,9 @@ import (
 	"time"
 )
 
-var configFilePath = flag.String("config-file", "config.toml", "A toml formatted config file")
+const DEFAULT_CONFIG_FILE_NAME = "config.toml"
+
+var configFilePath = flag.String("config-file", DEFAULT_CONFIG_FILE_NAME, "A toml formatted config file")
 
 type Config struct {
 	Domain       string
@@ -473,11 +475,17 @@ func HandleUploadImage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, header.Filename)
 }
 
-func init() {
-	flag.Parse()
+func loadConfigFile() string {
+	finalPath := *configFilePath
+	if *configFilePath == DEFAULT_CONFIG_FILE_NAME {
+		if _, err := os.Stat(*configFilePath); err == nil {
+			finalPath = *configFilePath
+		} else if _, err := os.Stat(AbsPathFromExe(*configFilePath)); err == nil {
+			finalPath = AbsPathFromExe(*configFilePath)
+		}
+	}
 
-	// read config file
-	configData, err := ioutil.ReadFile(filepath.FromSlash(*configFilePath))
+	configData, err := ioutil.ReadFile(filepath.FromSlash(finalPath))
 	if err != nil {
 		panic(fmt.Sprintf("Error reading config file: %v", err))
 	}
@@ -486,12 +494,10 @@ func init() {
 		panic(fmt.Sprintf("Error parsing config file: %v", err))
 	}
 
-	if len(conf.CookieSecret) == 0 {
-		panic("CookieSecret not set in config")
-	}
-	store = sessions.NewCookieStore([]byte(conf.CookieSecret))
+	return finalPath
+}
 
-	// setup logging
+func setupLogging() {
 	log_level, err := logging.LogLevel(conf.LogLevel)
 	if err != nil {
 		panic(err.Error())
@@ -506,6 +512,21 @@ func init() {
 	log_backend_level.SetLevel(log_level, "")
 
 	log.SetBackend(log_backend_level)
+}
+
+func init() {
+	flag.Parse()
+
+	confFilePath := loadConfigFile()
+
+	if len(conf.CookieSecret) == 0 {
+		panic("CookieSecret not set in config")
+	}
+	store = sessions.NewCookieStore([]byte(conf.CookieSecret))
+
+	setupLogging()
+
+	log.Notice("Using config file: %s", confFilePath)
 
 	// load base template
 	baseTemplateBytes, err := ioutil.ReadFile(AbsPathFromExe("templates", "base.html"))
