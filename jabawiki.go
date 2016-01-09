@@ -22,9 +22,10 @@ import (
 	"time"
 )
 
-const DEFAULT_CONFIG_FILE_NAME = "config.toml"
-
-var configFilePath = flag.String("config-file", DEFAULT_CONFIG_FILE_NAME, "A toml formatted config file")
+const (
+	DEFAULT_CONFIG_FILE_NAME  = "config.toml"
+	INTERNAL_SERVER_ERROR_MSG = "Internal server error"
+)
 
 type Config struct {
 	Domain       string
@@ -35,15 +36,13 @@ type Config struct {
 	CookieSecret string
 }
 
-const (
-	INTERNAL_SERVER_ERROR_MSG = "Internal server error"
-)
-
 var (
 	listen = ":8080"
 
 	baseTemplate = ""
 	users        = map[string]User{}
+
+	configFilePath = flag.String("config-file", DEFAULT_CONFIG_FILE_NAME, "A toml formatted config file")
 
 	log       = logging.MustGetLogger("wiki")
 	logFormat = logging.MustStringFormatter("%{color}%{shortfile} %{time:2006-01-02 15:04:05} %{level:.4s}%{color:reset} %{message}")
@@ -148,9 +147,23 @@ func GetArticle(w http.ResponseWriter, r *http.Request, title string) {
 }
 
 func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
+	user, err := getUserFromSession(r)
+	if err != nil {
+		log.Debug("Couldn't find user: %v", err)
+		http.Error(w, "Not allowed", http.StatusUnauthorized)
+		return
+	}
+
+	canAccess, err := CanAccessTitle(title, user)
+	if err != nil || !canAccess {
+		log.Debug("User is not allowed to access page: %v", err)
+		http.Error(w, "Not allowed", http.StatusUnauthorized)
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	var article IncomingArticle
-	err := decoder.Decode(&article)
+	err = decoder.Decode(&article)
 
 	if err != nil {
 		msg := "Couldn't decode incoming article"
@@ -180,7 +193,6 @@ func UpdateArticle(w http.ResponseWriter, r *http.Request, title string) {
 	articleStore.AddArticleFromIncoming(article.Title, article)
 
 	creator := ""
-	user, err := getUserFromSession(r)
 	if err == nil {
 		creator = user.Name
 	} else {
@@ -292,13 +304,7 @@ func HandleGetPreview(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(articlesJson))
 }
 
-func CanAccessTitle(title string, r *http.Request) (bool, error) {
-	user, err := getUserFromSession(r)
-
-	if err != nil {
-		return false, err
-	}
-
+func CanAccessTitle(title string, user User) (bool, error) {
 	metadata, err := GetMetadata(title)
 	if err != nil {
 		return false, err
@@ -312,15 +318,16 @@ func HandleHistoryGet(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	title := vars["title"]
 
-	canAccess, err := CanAccessTitle(title, r)
-
+	user, err := getUserFromSession(r)
 	if err != nil {
-		msg := "User not authorized"
-		log.Debug("%s: %v", msg, err)
-		http.Error(w, msg, http.StatusUnauthorized)
+		log.Debug("Couldn't find user: %v", err)
+		http.Error(w, "Not allowed", http.StatusUnauthorized)
+		return
 	}
 
-	if !canAccess {
+	canAccess, err := CanAccessTitle(title, user)
+
+	if err != nil || !canAccess {
 		log.Debug("User is not allowed to access page: %v", err)
 		http.Error(w, "Not allowed", http.StatusUnauthorized)
 		return
@@ -378,15 +385,16 @@ func HandleArchiveGet(w http.ResponseWriter, r *http.Request) {
 	time := vars["archiveTime"]
 	format := vars["format"]
 
-	canAccess, err := CanAccessTitle(title, r)
-
+	user, err := getUserFromSession(r)
 	if err != nil {
-		msg := "User not authorized"
-		log.Debug("%s: %v", msg, err)
-		http.Error(w, msg, http.StatusUnauthorized)
+		log.Debug("Couldn't find user: %v", err)
+		http.Error(w, "Not allowed", http.StatusUnauthorized)
+		return
 	}
 
-	if !canAccess {
+	canAccess, err := CanAccessTitle(title, user)
+
+	if err != nil || !canAccess {
 		log.Debug("User is not allowed to access page: %v", err)
 		http.Error(w, "Not allowed", http.StatusUnauthorized)
 		return
