@@ -2,7 +2,7 @@
 """
 Builds jabawiki for all major platforms.
 
-Usage: python create_release.py (version) [op_sys arch]
+Usage: python create_release.py (version)
 """
 
 import os
@@ -23,16 +23,7 @@ targets = (
             ("windows", "amd64")
         )
 
-if len(sys.argv) <= 1:
-    print("Incorrect usage")
-    print(__doc__)
-    sys.exit(1)
-
-if len(sys.argv) > 1:
-    version = sys.argv[1]
-
-if len(sys.argv) == 4:
-    targets = ((sys.argv[2], sys.argv[3]), )
+version = sys.argv[1]
 
 print("Building base")
 
