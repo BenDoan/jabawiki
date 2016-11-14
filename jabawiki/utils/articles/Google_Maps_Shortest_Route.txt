@@ -1,0 +1,8 @@
+Uses the google maps/google now data to find the shortest routes between two points.
+
+ Location history can be found [here](https://maps.google.com/locationhistory). History can be exported from google takeout in kml or json format.
+
+## Features
+* Display various routes sorted by times
+* Give values for straightness, interstate/highway/neighborhood, etc.
+* Weight right and left turns

@@ -1,0 +1,7 @@
+## Notes
+- For arch add user to uucp group (gpasswd -a user uucp) to access serial device without root
+- Use screen /dev/ttyUSB0 to access serial connection
+- Library docs are at http://www.nodemcu.com/docs
+- The unofficial wiki is a great resource: http://www.esp8266.com/wiki/doku.php?id=nodemcu-unofficial-faq
+- For uploading files to the device, I found https://github.com/kmpm/nodemcu-uploader to work the best.
+- Turn on onboard led: write low to 4

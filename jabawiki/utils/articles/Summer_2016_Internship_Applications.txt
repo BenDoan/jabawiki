@@ -1,0 +1,193 @@
+# Active
+## Stripe
+- 2015-10-20 - applied for Engineering intern
+- 2015-10-27 - received request for initial interview
+- 2015-11-04 - did screening interview with Jordan MacDonald
+ - impressed by ooi project, talked about that
+ - scheduled coding phone interview for 3:30 2015-11-10
+ - if phone interview goes well, I'll be flown down for on-site interview
+
+# Applied
+## Yelp
+- 2015-10-20 - applied to "Software Engineer - Intern - Summer" position
+
+## VMWare
+- 2015-10-20 - applied to "Intern, Management Platform" position
+- 2015-10-20 - applied to "Intern, Internet of Things" position
+- 2015-10-20 - applied to "Software Development Intern" position
+
+## SpaceX
+- 2015-10-20 - applied for
+ - Internship/Co-Op Summer 2016 (Los Angeles)
+ - Internship/Co-Op Fall 2016 (Seattle)
+ - Internship/Co-Op Summer 2016 (Seattle)
+ - Internship/Co-Op Summer 2016 (Vandenberg)
+ - Internship/Co-op Summer 2016, Texas
+ - Internship/Co-Op Fall 2016 (Seattle)
+
+## Apple
+-  2015-10-20 - Applied for "Software Engineering Intern: Web Dev"
+
+## Microsoft
+- 2015-10-20 applied to
+ - Development (Engineering)
+ - Services (Engineering)
+
+## Dropbox
+- 2015-10-20 - applied to SE internship 2016
+
+## Facebook
+- 2015-10-20 - applied to 
+ - Production Engineer, Intern/Co-op
+ - Front End Engineer, Intern/Co-op
+ - Safety and Security Software Engineer, Intern
+
+## Google
+- 2015-10-20 - applied for Software Engineering Intern, BA/BS, Summer 2016 - North America
+
+## Amazon
+- 2015-10-20 - submitted application for Fall/Winter Software Development Engineer Intern/Co-op 
+
+## Github
+- 2015-10-20 - applied for San Francisco - Engineering - Intern
+
+## Magic Leap
+- 2015-10-22 - applied for Intern - Embedded Software (FL)
+
+## Ebay
+- 2015-10-26 - applied to Software Engineer Intern - Undergrad
+
+## LinkedIn
+- 2015-10-26 - applied to Software Engineer Internship and Software Engineer Internship - systems
+
+## Etsy
+- 2015-10-26 - applied to Software Engineering Intern - Summer 2016 (New York) | Internships | Brooklyn, NY, United States 
+
+## Rackspace
+- 2015-10-26 - applied to rackspace internship
+
+## Uber
+- 2015-10-27 - applied for Software Engineer internship
+
+## Salesforce
+- 2015-10-27 - applied to Software Engineer Intern
+
+## Square
+- 2015-10-27 - applied for Software Engineer, Intern
+
+## Pinterest
+- 2015-10-28 - applied to Software Engineer Intern
+
+# Not Applied
+## Pixar
+- 2015-10-20 - couldn't find any technical internships
+
+## **Tesla**
+- 2015-10-20 - couldn't find summer 2016 internships, look later
+
+## **Mozilla**
+- 2015-10-20 - couldn't find summer 2016 internships, look late october
+
+## Lab126
+- 2015-10-20 - couldn't find software internship
+
+# Rejected
+## Twitter
+- 2015-10-20 - applied to "Software Engineer - Intern - Twitter Boston"
+- 2015-10-20 - applied to "Software Engineer - Intern - Summer 2016"
+
+## Jane Street
+- 2015-10-20 - applied to SE internship
+- 2015-10-26 - rejected
+
+## Garmin
+- 2015-10-26 - applied to Software Engineer Intern - KU Campus Office
+- 2015-10-27 - rejected
+
+## Quora
+- 2015-10-20 - applied for "Software Engineer Intern"
+- 2015-10-28 - rejected
+
+## Airbnb
+- 2015-10-27 - applied to Software Engineering, Intern
+- 2015-10-29 - rejected
+
+
+## Khan Academy
+- 2015-10-27 - applied to Software Engineer internship
+- 2015-11-04 - rejected
+
+## Epic
+- 2015-10-26 - applied to Software Developer Intern - Summer 2016
+- 2015-11-16 - rejected
+
+## Red Hat
+- 2015-10-26 - applied to
+ - Software Engineering Internship - Katello and Foreman
+ - Software Engineering Internship - Candlepin
+ - Software Engineering Internship - Red Hat CloudForms
+ - Software Engineering Internship - Identity Management
+ - Software Engineering Internship - Fedora Engineering
+- 2015-10-27 - received request for more information about Fedora Engineering internship
+- 2015-10-29 - rejected from fedora web dev internship
+- 2015-11-05 - received email from Paul W. Frields and scheduled an interview for 2015-11-06
+- 2015-11-12 - rejected
+
+## Palantir
+- 2015-10-20 - applied to SE intern position in Mountain View and New York
+- 2015-12-01 - rejected
+
+## Goldman Sachs
+- 2015-10-20 - applied to technical analyst intern position
+- 2015-12-18 - rejected
+
+# Second wave
+## Addepar
+## Asana
+## Counsyl
+## Bloomberg
+## Adobe
+## Qualcomm
+## Evernote
+## Spotify
+## Fog Creek
+## Square
+## Sandia
+## Snapchat
+## IBM
+## Oracle
+## Nvidia
+## AMD
+## Texas Instruments
+## Cisco
+## Tableau Software
+## Intuit
+## Atlassian
+## Xamarin
+## Intel
+## Twilio
+
+# Third wave
+## Yahoo
+## HBO
+## Walmart
+## Sauce Labs
+## Cloudera
+## Akamai
+## Intel Security
+## Motorola
+## Braintree
+## Blackberry
+## Stack Exchange
+## Hipmunk
+## Pandora
+## Netgear
+## Micron
+## NASA
+## EMC
+## Box
+## Ericsson
+## Mapbox
+## Joyent
+## Xamarin
+## CloudFlare

@@ -1,0 +1,135 @@
+```
+<prog> ::= <sl> | ε.
+<sl> ::= <sl> <statement> ; | <statement> ;.
+<statement> ::= <block> | <assign> | <dec> | <conditional> | <whileloop> | <forloop> | <printstmt> | <incexp>.
+<block> ::= { <sl> } | { }.
+
+<whileloop> ::= <while> <expr> <block>.
+<forloop> ::= for <assign> ; <expr> ; <expr> <block>.
+
+<conditional> ::= if <expr> <block> else <block>.
+<dec> ::= INT <id> | BOOL <id>.
+<assign> ::= <id> = <expr>.
+
+<printstmt> ::= print <expr>.
+
+<expr> ::= <expr> and <orexp> | <orexp>.
+<orexp> ::= <orexp> or <notexp> | <notexp>.
+<notexp> ::= not <eqexp> | <eqexp>.
+<eqexp> ::= <eqexp> == <comexp> | <eqexp> != <comexp> | <comexp>.
+<comexp> ::= <comexp> < <addexp> | <comexp> > <addexp> | <addexp>.
+<addexp> ::= <addexp> + <mulexp> | <addexp> - <mulexp> | <mulexp>.
+<mulexp> ::= <mulexp> * <modexp> | <mulexp> / <modexp> | <modexp>.
+<modexp> ::= <modexp> mod <expexp> | <expexp>.
+<expexp> ::= <expexp> ^ <minexp> | <minexp>.
+<minexp> ::= - <oneexp> | <oneexp>.
+<oneexp> ::= <valexp> | ( <expr> ) | <barchar> <expr> <barchar>.
+<valexp> ::= <intconst> | <boolconst> | <incexp> | <id>.
+<incexp> ::= --<id> | <id>-- | ++<id> | <id>++.
+```
+
+```
+id = [A-Za-z][A-Za-z0-9]*
+intconst = ([1-9][0-9]*) | 0
+boolconst = (true|false)
+
+{id} -> (SHELL("id", yytext, getNextTokenPos(yytext)));
+{intconst} -> (SHELL("intconst", yytext, getNextTokenPos(yytext)));
+{boolconst} -> (SHELL("boolconst", yytext, getNextTokenPos(yytext)));
+
+"if" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"else" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"while" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"for" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"print" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"barchar" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"int" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"bool" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"{" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"}" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+";" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"and" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"or" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"not" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"-" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"++" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+""-- -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"+" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"*" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"div" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"mod" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"^" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"<" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+">" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"=" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"!=" -> (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+```
+```
+
+ident = [A-Z][A-Za-z0-9]*;
+intconst = [1-9][0-9]* | "0";
+boolconst = "true"|"false";
+
+%%
+
+"if" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"else" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"while" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"for" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"print" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"barchar" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"int" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"bool" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"{" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"}" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+";" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"and" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"or" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"not" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"-" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"++" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"--" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"+" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"*" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"div" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"mod" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"^" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"<" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+">" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"=" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+"!=" => (SHELL(yytext, yytext, getNextTokenPos(yytext)));
+
+{intconst} => (SHELL("intconst", yytext, getNextTokenPos(yytext)));
+{boolconst} => (SHELL("boolconst", yytext, getNextTokenPos(yytext)));
+{ident} => (SHELL("id", yytext, getNextTokenPos(yytext)));
+```
+```
+<prog> ::= <sl>.
+<sl> ::= <sl> <statement> ";" | <statement> ";".
+<statement> ::= <block> | <assign> | <dec> | <conditional> | <whileloop> | <forloop> | <printstmt> | <incexp>.
+<block> ::= "{" <sl> "}" | "{" "}".
+
+<whileloop> ::= "while" <expr> <block>.
+<forloop> ::= "for" <assign> ";" <expr> ";" <expr> <block>.
+
+<conditional> ::= "if" <expr> <block> "else" <block>.
+<dec> ::= "int" <id> | "bool" <id>.
+<assign> ::= <id> = <expr>.
+
+<printstmt> ::= "print" <expr>.
+
+
+<expr> ::= <expr> "or" <andexp> | <andexp>.
+<andexp> ::= <andexp> "and" <notexp> | <notexp>.
+<notexp> ::= "not" <eqexp> | <eqexp>.
+<eqexp> ::= <eqexp> "==" <comexp> | <eqexp> "!=" <comexp> | <comexp>.
+<comexp> ::= <comexp> "<" <addexp> | <comexp> ">" <addexp> | <addexp>.
+<addexp> ::= <addexp> "+" <mulexp> | <addexp> "-" <mulexp> | <mulexp>.
+<mulexp> ::= <mulexp> "*" <modexp> | <mulexp> "/" <modexp> | <modexp>.
+<modexp> ::= <modexp> "mod" <expexp> | <expexp>.
+<expexp> ::= <expexp> "^" <minexp> | <minexp>.
+<minexp> ::= "-" <oneexp> | <oneexp>.
+<oneexp> ::= <valexp> | ( <expr> ) | "|" <expr> "|".
+<valexp> ::= <intconst> | <boolconst> | <incexp> | <id>.
+<incexp> ::= "--"<id> | <id>"--" | "++"<id> | <id>"++".
+```

@@ -1,0 +1,2 @@
+- Code snippets for nodemcu
+- process for replacing nexus 5 screen

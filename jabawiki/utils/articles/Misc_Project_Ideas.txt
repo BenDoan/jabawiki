@@ -1,0 +1,4 @@
+## Better terminal sqlite viewer
+- ipython inspired features
+- readline support
+- Column names in output

@@ -1,0 +1,19 @@
+# Ciders
+
+##  Ale cider
+- Yeast: Danstar Nottingham Ale
+- Initial gravity: 1055
+- Date: 2016-01-28
+- Amount: 1 gal.
+
+## Brown sugar ale cider
+- Yeast: Danstar Nottingham Ale
+- Initial gravity: 1075
+- Date: 2016-01-28
+- Amount: 1 gal.
+
+## Wine cider
+- Yeast: Lalvin EC-1118 Champagne 
+- Initial gravity: 1055
+- Date: 2016-01-31
+- Amount:1/2 gal,

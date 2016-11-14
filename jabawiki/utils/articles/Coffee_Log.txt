@@ -1,0 +1,31 @@
+# Straight roasts
+## Indian Monsooned Malabar
+* Rating: 90%
+* Roast: medium
+* Maker: A Hill of Beans
+* Notes: slightly salty, great flavor, very unacidic
+
+## Colombian
+* Rating: 50%
+* Roast: light
+* Maker: A Hill of Beans
+* Notes: Mediocre flavor, fairly acidic
+
+## Columbian Supremo
+* Rating: 50%
+* Roast: medium
+* Maker: A Hill of Beans
+* Notes: spicy, peppery, medium acidity
+
+## Ethiopian Yirgacheffe
+* Rating: 80%
+* Roast: medium
+* Maker: A Hill of Beans
+* Notes: Mild, good flavor
+
+# Flavored coffees
+## Blueberry Cobbler
+* Rating: 70%
+* Roast: medium
+* Maker: A Hill of Beans
+* Notes: Good blueberry flavor, not too acidic

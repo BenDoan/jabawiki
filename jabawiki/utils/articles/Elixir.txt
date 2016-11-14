@@ -1,0 +1,3 @@
+## Links:
+* http://nithinbekal.com/posts/phoenix-authentication/
+* http://meatherly.github.io/2015/05/04/phoenixlivelikeawarrior/

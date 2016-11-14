@@ -1,0 +1,11 @@
+# Hackathons competed in
+
+## ICPC 2014 Regionals
+Placement: #3/46 (site), #13/290 (region)
+[scoreboard](http://cse.unl.edu/~upe/contest/)
+
+## Battle of the Code 2015
+Placement: #2 in the lichen hunt category
+
+## CSG Hackathon - 2016-02-27
+Placement: #3

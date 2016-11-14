@@ -1,0 +1,3 @@
+http://pgbovine.net/cpython-internals.htm
+
+http://ruslanspivak.com/lsbasi-part1/

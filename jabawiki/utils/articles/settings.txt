@@ -1,0 +1,2 @@
+## Firefox
+- Disable middle click paste url: middlemouse.paste -> false

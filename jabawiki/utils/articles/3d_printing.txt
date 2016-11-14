@@ -1,0 +1,10 @@
+# Printers
+- **[[Maker_Select]]**
+
+# Printing materials
+## HIPS (High Impact Polystyrene)
+- dissolves with Limonene
+- similar properties to ABS
+
+# Links
+- http://octoprint.org/

@@ -1,0 +1,8 @@
+This program allows users to quickly perform manual data processing.
+
+A few use cases are:
+
+* classifying images 
+  * e.g. whether an image does or doesn't contain a shuttle
+* verifying correctness of data formats (json, xml, csv)
+  * e.g. is a specific field in a json dict correct

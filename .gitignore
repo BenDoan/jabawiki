@@ -27,7 +27,6 @@ _testmain.go
 static/lib/*
 tmp
 gin-bin
-jabawiki
 
 tls
 cert*pem
@@ -38,3 +37,8 @@ dev_data
 releases
 
 todo.txt
+
+*.pyc
+__pycache__/
+
+jabawiki.db

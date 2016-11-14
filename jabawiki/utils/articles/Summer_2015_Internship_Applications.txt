@@ -1,0 +1,289 @@
+# Unknown
+## Amazon
+* 2014-08-25 - applied
+
+## Facebook
+* 2014-08-25 - applied
+
+## Microsoft
+* 2014-08-25 - applied
+* 2015-05-01 - applied to internship position posted on may hn who's hiring post
+
+## Sandia
+* 2014-10-19 - applied
+
+## Red Hat
+* 2014-10-19 - applied
+
+## Qualcomm
+* 2014-10-xx - applied
+
+## SpaceX
+* 2014-10-19 - applied
+
+## IBM
+* 2014-10-19 - applied
+* 2015-03-01 - applied to "LEADing to Africa" research internship
+
+## Oracle
+* 2014-10-19 - applied
+
+## Nvidia
+* 2014-10-19 - applied
+
+## AMD
+* 2014-10-19 - applied
+
+## Texas Instruments
+* 2014-10-19 - applied
+
+## Cisco
+* 2014-10-19 - applied
+
+## Square
+* 2014-10-19 - applied
+
+## Apple
+* 2014-10-19 - applied
+
+## Twitter
+* 2014-10-19 - applied
+
+## Evernote
+* 2014-11-20 - applied to teams platform(redwood), android(austin)
+
+## Jane Street
+* 2014-11-24 - applied for SE internship
+
+## Tableau Software
+* 2014-11-30 - applied for software engineer intern position
+
+## Tesla
+* 2015-01-17 - applied for firmware internship
+
+## Pixar
+* 2015-01-17 - applied to SE internship
+
+## Intuit
+* 2015-01-17 - applied for SE internship
+
+## Etsy
+* 2015-01-18 - applied for SE internship
+
+## Atlassian
+* 2015-01-18 - applied for SE internship
+
+## Xamarin
+* 2015-01-19 - applied for SE internship
+
+## Yahoo
+* 2015-01-19 - applied for technical internship
+
+## HBO
+* 2015-01-19 - applied for SE internship
+
+## Walmart
+* 2015-01-26 - applied for SE internship
+
+## Cloudera
+* 2015-03-01 - applied for software engineering internship
+
+## Sauce Labs
+* 2015-04-01 - applied for engineering internship (HN)
+
+# Rejected
+## Intel
+* 2014-08-25 - applied
+* 2014-09-03 - rejected
+
+## Palantir
+* 2014-10-19 - applied
+* 2014-10-21 - rejected
+
+## Quora
+* 2014-10-19 - applied
+* 2014-10-23 - rejected
+
+## Mozilla
+* 2014-10-19 - applied
+* 2014-10-24 - rejected
+
+## Garmin
+* 2014-10-23 - applied
+* 2014-10-28 - rejected
+
+## Ebay
+* 2014-10-19 - applied
+* 2014-10-30 - phone interview with Mike Biesenthal
+** No algorithm or puzzle questions
+** Basic technology background
+** Seemed to match job requirements very well
+** Will be working on solo dashboard project
+* 2014-11-06 - phone interview with Chirag Todarka
+** [[ebay interview transcript]]
+** Basic sql questions
+** Solved anagram algorithm question
+** Parking lot class design question
+* 2014-11-21 - rejected
+
+## Dropbox
+* 2014-10-19 - applied
+* 2014-12-17 - rejected
+
+## Pinterest
+* 2015-01-17 - applied for Cloud Software Engineer intern
+* 2015-01-27 - rejected
+
+## Airbnb
+* 2015-01-19 - applied for SE internship
+* 2015-01-29 - rejected
+
+## Google
+* 2014-08-25 - applied
+* 2014-10-27 - Adam Anderson submitted employee referral
+* 2014-11-03 - scheduled interviews
+* 2014-12-02 - interview day
+* 2014-12-02 - 1st interview with Leigh
+** wrote fib in recursive, memoized, iterative forms
+** Dutch National Flag problem, wrote incorrect solution
+** [[Google interview 1 doc]]
+** questions: intern projects/situation
+** questions: environment/os
+** rating: 3/5 didn't get correct solution to last, but made progress on all
+* 2014-12-02 - 2nd interview with Chris
+** asked about work at raytheon, java experience
+** given sorted list of numbers, return first popular number (popular is over 25%!)(MISSING)
+** merge n sorted lists together
+** [[Google interview 2 doc]]
+** rating: 4/5 correct solutions to all, not all were efficient or super clear 
+* 2014-12-02 - 3rd interview with Maurius
+** print kth level of bst in order from out to in
+** given a matrix with each col and row counting up, return kth smallest element
+** questions: environment/os, code review/vcs
+** [[Google interview 3 doc]]
+** rating: 2/5 didn't solve either problem, couldn't say complexities for tree operations
+* 2015-01-14 - rejected
+
+## Epic
+* 2014-10-19 - applied
+* 2014-11-11 - phone interview with Matt
+** Talked about past projects, MW Checkout, ICGS 
+** Talked about internship details and company details
+*** SVN, ASP or native mobile language, Windows, some mac, testing important/QA team
+*** Working on solo or group project for 12-16 weeks
+*** Apartment or stipend provided, extracurricular activities
+* 2014-11-13 - proctored technical assessment 
+** ~5m IQ Test
+** ~45m math/logic test
+** ~60m programming language test, introduced new language
+** ~60m algorithmic test w/ 5 problems
+* 2014-11-21 - contacted to organize on-site interview
+* 2014-11-25 - organized on-site interview for Dec 23
+* 2014-12-22 - Flew out to Madison and had dinner with Justin from Epic plus 6 other candidates (2 sw interns, 4 pm ft)
+* 2014-12-23 - Had interview at Epic intergalactic headquarters
+** Talked about past projects with a software engineer
+** Briefly talked about salary with Jimmy (my recruiter), put out $38
+** Got a tour, ate lunch at the cafeteria, talked to other employees
+** Ate dinner with two Epic employees and another candidate
+* 2015-01-22 - rejected
+
+## Bloomberg
+* 2015-01-17 - applied for SE internship
+* 2015-03-03 - rejected
+
+## Akamai
+* 2014-10-19 - applied
+* 2014-11-14 - contacted to organize first interview
+* 2014-11-25 - talked with Nick Russo
+** Talked about shuttle project, linux experience, basic programming bio
+** Probably no housing/housing stipend
+** Linux is a major plus, used heavily on most teams
+** Should here back this or next week
+
+## Motorola
+* 2014-10-19 - applied
+* 2014-11-20 - contacted for phone screen
+* 2014-12-02 - phone interview with Jeremy Fixemer, lasted ~80m
+** talked about general experience
+** talked in depth about what I do at Raytheon, testing procedures, specific contributions
+** would be working on team that does Astro zone controller radio
+** work is mostly in c/cpp, cppunit tests, esxi testing environment, redhat on desktops
+** I addressed Raytheon in my cover letter
+** Expect an offer before christmas, only one interview
+** Motorola may or may not pay for housing, will not pay for flight/drive to Chicago
+* 2014-12-05 - interviewed with Craig Collins of the Mission Critical Transport Engineering team
+** Asked about a problem I had dealt with (talked about netcdf jni stuff)
+** Internship would be using itest to test networking
+** He will get back to me about housing,etc. I need to tell him interest
+** 2014-12-19 - I told Craig that I wasn't interested
+* 2014-12-29 - interviewed with Vachan Shetty (and two others) from the Shared Systems Platform and Architecture team
+** Asked about Raytheon experience, personal projects experience
+** Seemed interested in virtual machines, linux
+** Development is mostly perl with some java, python, c
+** It seemed that the position would lean towards the systems engineering/testing side
+** The interview went very well, although I'm not sure if I'm interested in the position
+** Motorola has subsidized housing, Vachan wasn't sure about paid travel (probably not)
+* 2015-03-26 - Called by lady, not called back
+
+## Braintree
+* 2015-01-18 - applied for SE internship
+* 2015-03-19 - rejected
+
+## Blackberry
+* 2015-01-25 - applied for Software Internship
+* 2015-05-10 - rejected
+
+# Unapplied
+## Fog Creek
+
+## VMWare
+* 2014-10-19 - no sde internships
+
+## LinkedIn
+* 2014-10-19 - couldn't find
+
+## Adobe
+* 2014-10-19  - couldn't find sde internship
+
+## Goldman Sachs
+
+## Yelp
+* 2015-01-17 - no SE internships
+
+## Pandora
+
+## Rackspace
+* 2015-01-17 - no SE internships
+
+## Netgear
+*2015-01-17 - no SE internships
+
+## Micron
+
+## NASA
+
+## Joyent
+
+## Xamarin
+
+## Stack Exchange
+
+## CloudFlare
+
+## Spotify
+
+## Lab126
+
+## Hipmunk
+
+## Mapbox
+
+## Intel Security
+
+
+# Common Questions
+* Tell me a bit about yourself.
+* Where did you here about <internship/company>?
+* What do you know about <internship/company>?
+* What do like to do outside of programming?
+* What did you do at <company>?

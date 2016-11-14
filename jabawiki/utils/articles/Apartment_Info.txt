@@ -1,0 +1,12 @@
+# Cox
+- Account number: 001 7210 043679627
+- PIN: 9931
+- User ID: bendoan
+- Password: Coxisliterallyhitler$1
+- Tmp Password: known209
+- auto payment method: ACH
+
+# OPPD
+- Account number: 0884232648
+- username: bendoan
+- auto payment method: ACH

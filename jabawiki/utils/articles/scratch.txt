@@ -1,0 +1,230 @@
+[[book_review_scratch]]
+
+DHL Customs number: 1-866-600-0014
+
+No-eye-deer mumble: http://videohuevos.mumble.com:3826
+
+Spot award certificate number: ~~ZH7B6BPDZ5~~
+
+2015 return amount: 2969
+
+## IT Ethics news topics:
+- ~~Superfish~~
+- Apple encryption
+- Snowden wget
+- Encryption bans
+- ~~FISA court~~
+- Bitcoin
+- https://www.backblaze.com/blog/adobe-creative-cloud-update-bug/
+- Yelp employee firing
+- Lets encrypt 700,000 https://news.ycombinator.com/item?id=11141170
+- Google self driving car crash
+- Tay
+- FBI no longer wants apple to open iphone
+
+## Charities
+- Against Malaria Foundation
+- FSF
+- EFF
+- FFRF
+- Wikimedia
+
+Ray pin: 2961
+
+-Breanna
+
+http://stanford.edu/~liszt90/acm/notebook.html#file1
+
+## TED talks to see:
+- Bill T Jones
+- Al Gore
+- Adam Savage
+- gravity waves
+
+# insurance
+## occupational
+- 75% of pay using after tax money
+- ownoc insurance for two years then autooc
+## life insurance
+- only get term life
+
+--
+
+- Avoid compulsively making things worse.
+
+- Allow public to view hist on public pages
+
+## Laptop power button issue
+- https://forums.lenovo.com/t5/ThinkPad-T400-T500-and-newer-T/T440s-will-not-power-on-unless-plugged-in/td-p/1623032
+
+Your passport application locator number is 275209300.
+
+WB5NB8NHMN
+
+Basil CSG
+
+$60 moto x
+
+dell xps 13 model: 9350-1340SLV
+
+mount disk w/ udisks2: udisksctl mount -b /dev/mmblk0p1
+
+[[solvespace_question_post]]
+
+https://pvcycling.wordpress.com/2016/05/26/report-card/
+
+CenturyLink 1.5Mbit $30 -> new price 1.5Mbps $15
+
+bindsym $mod+n workspace next                                                                                                  
+bindsym $mod+p workspace previous
+bindsym $mod+1 workspace number 1
+
+Building codes: 9654 or 8447
+
+
+Midas quote for new break rotors: $450 front $250 back
+
+Fusion license plate number: swz 977
+
+Papenfuss dermatologist
+
+https://getexponent.com/
+
+## Restore health ingredients:
+- wickwheat
+- corkbulb root
+- corpus weepings
+- emerald
+- marshmerrow
+- resin
+- saltrice
+
+http://missouri-riverside.us/
+
+# Topics that should be taught in a cs degree:
+
+Find me a good, professional software engineer that will disagree that most of the following concepts are both important for most developers and almost completely untaught at UNO. Every student that graduates from the UNO CS program will be a programmer or at least a sysadmin, and they are **not** taught what they need to succeed in their career. This is okay right now, because of the massive demand, but that doesn't make it right and it doesn't mean that it will continue to be okay. I estimate that you could teach the concepts in the required category in 8 classes or under, which is only 20% of the required credits for a CS degree.
+
+I'm not implying that this content should make up the entirety of the curriculum, just that it be taught. There's still 80% of the credits left over, 40% for geneds and 40% for theoretical computer science.
+
+I'm sure there are topics missing from the following list, and that the following list is biased towards technology I've used or find important. This list should mostly serve as an example of what a good curriculum could be. One that actually taught students things they would find useful in their careers.
+
+## Required
+1. automated testing
+ - unit testing
+ - UI testing (selenium/phantomjs/etc.)
+ - integration/functional testing (cucumber/business driven testing/etc.)
+ - actually write tests for an existing piece of software
+ - TDD, BDD
+1. software deployment/configuration management
+ - cm tools (chef/ansible/puppet/etc.)
+ - virtual machines
+ - containers (docker/rocket/LXC/etc.)
+ - clustering/distributed computing (kubernetes/cassandra/zookeeper/docker swarm/etc.)
+1. Software hosting
+ - hosting styles (VPS/Dedicated/PAAS[heroku])
+ - Cloud computing (AWS/GCE/Azure)
+ - DNS/domain registration
+ - SSL/TLS
+1. support servers (can't think of a better name)
+ - relational databases (postgres/mysql/**sqlite**/etc.)
+ - nosql databases (mongo/cassandra/redis/etc.)
+ - message queue protocols (JMS/MQTT/AMQ/etc.)
+ - message queue servers (activemq/zeromq/kafka/etc.)
+ - caches/reverse proxies (memcached/redis/nginx/hazelcache/etc.)
+ - web servers (apache/ngnix/IIS/etc.)
+ - logging servers
+1. Version Control (specifically a DVCS like git/mercurial)
+1. Debuggers/profilers (gdc/valgrind/eclipse/pdb/etc.)
+1. Basic linux
+ - Basic commands (cat/ls/tail/less/grep/etc.)
+ - Regular expressions
+ - Common tools (sed/awk/find/locate/ps/vim/etc.)
+ - Bash scripting
+ - filesystem structure
+ - package managers (apt-get/yum/dpkg/pkg/etc.)
+ - environmental variables
+ - daemons
+ - systemd/linux services basics
+1. Large projects
+1. Web programming
+ - html/css
+ - A modern web programming language (python/ruby/scala/etc.)
+ - A modern web programming framework (flask/django/rails/play/etc.)
+ - ORMs
+1. Data structures (in which you actually implement the data structures)
+1. Algorithms (in which you actually implement the algorithms)
+
+## Optional
+1. Functional Programming (Haskell/SML/Elm/Clojure)
+1. Javascript
+1. Advanced linux
+ - the linux kernel
+ - Advanced tools (nmap/wireshark/vim/emacs/etc.)
+ - advanced distros (gentoo/arch/LFS/etc.)
+  - init systems (systemd, sysvinit)
+ - Other unixes (BSD/Solaris/etc.)
+ - performance monitoring (top/htop/iotop/nettop/etc.)
+ - file systems
+ - FTP/NAS/FUSE/etc.
+ - ssh/PKI
+ - SSL/TLS
+ - syscalls
+ - how the kernel starts a program (execve, etc.)
+1. Lisp
+1. Advanced web programming
+1. Courses for specific programming languages
+
+# Rough course outline
+## Required
+- Introduction to Software Testing
+- Introduction to Software Deployment (deployment/cm/hosting/support servers)
+- Introduction to Linux
+- Introduction to Web Programming I (HTML+CSS+python web development)
+- Data structures I
+- Data structures II
+- Algorithms I
+- Large project class (work on existing large codebase, includes DVCS use and automated testing)
+
+## Optional
+- Alogrithms II
+- Web programming II (Heavy backend framework [rails/django/play/etc.] + Databases)
+- Introduction to Javascript (JS basic/JQuery/minification/basic framework like backbone/knockout)
+- Advanced Javascript (Heavy frontend framework [angular/reactetc.])
+- Functional programming
+- Linux II
+- Introduction to IOS app development
+- Introduction to Android app development
+- Scripting
+
+* I left out a lot of classes that are closer to theoretical CS like machine learning, data science, etc.
+
+# Misc observations
+- Python should 100% be the language used for intro classes
+- Because of the huge difference in incoming programming abilities, it should be made easier to skip the introductory programming courses.
+- Most UNO students know very little about web development, but recognize that it's important in industry
+- The current data structure class and algorithms classes are close to useless because they spend almost no time writing code
+- It's a travesty that there are no app development classes (cs principles doesn't count), almost every CS student would be interested in taking one
+- Web development is **so** important in industry. Many, many students will be doing it when they graduate, and most of the rest will touch it in some way. Despite this it is pretty much not taught (1300 is not taken by most and is overly basic, 2850 is a perl class, not a web class, 8470 [secure web app development] is on the right track but it's IA and is focused on security). Because of how important the web is and is becoming it should be taught to every UNO student, and yet it's not even being taught to CS students?
+
+# blog post ideas
+- how to teach software engineering
+ - learn by doing
+ - classes should be (short lecture) + (long in-class programming of concepts from lecture) + (frequent out of class assignments requiring knowledge of concept)
+ - teaching concepts is nearly worthless if they are not implemented soon after
+ - students coming into programming classes vary widely in ability
+  - split into (have programmed) + (have not programmed)
+  - more skilled memeber of each group can help less skilled during in class programming
+ - computers in classrooms are limited
+  - students could be required to have laptop (like UNL) to aid this   
+  - more labs could be built/used
+  - each classroom in PKI should have a **good** whiteboard (inexcusable that some teachers are forced to use elmo)
+ - teaching html then php is great
+  - very visual
+  - html is good intro
+  - one bleeds into other
+  - python could be good alt lang
+
+- http://courses.csail.mit.edu/6.851/
+- http://jeffe.cs.illinois.edu/teaching/algorithms/
+- https://www.fictionpress.com/s/2961893/1/Mother-of-Learning

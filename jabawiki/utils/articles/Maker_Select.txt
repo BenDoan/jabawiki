@@ -1,0 +1,9 @@
+## Values
+- Nozzle size (mm) = 0.4
+
+## Links
+- http://www.monoprice.com/product?c_id=107&cp_id=10724&cs_id=1072403&p_id=13860
+- http://3dprinterwiki.info/wiki/wanhao-duplicator-i3/
+- https://www.reddit.com/r/3Dprinting/comments/4a1x7y/first_week_with_first_printer/
+- https://www.youtube.com/watch?v=Q5Ot1Mh_tlA&feature=youtu.be
+- http://unclechucks3dprinterstuff.com/catalog%20parts%203.htm

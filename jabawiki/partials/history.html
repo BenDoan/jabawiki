@@ -1,0 +1,24 @@
+<h3>History for {{title}}</h3>
+
+<table class="table table-bordered table-striped table-responsive">
+    <tr>
+        <th>Time</th>
+        <th>Creator</th>
+        <th>Summary</th>
+        <th>Actions</th>
+    </tr>
+    <tr ng-repeat="histItem in history">
+        <td>{{histItem.time*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+        <td>{{histItem.user}}</td>
+        <td>{{histItem.summary}}</td>
+        <td>
+            <button class="btn btn-xs" ng-click="view(title, histItem)">view</button> |
+            <button class="btn btn-xs btn-danger" ng-click="revert(title, histItem)">revert to</button>
+        </td>
+    </tr>
+</table>
+
+<div ng-if="preview">
+    Date: {{previewHistItem.time*1000 | date:'yyyy-MM-dd HH:mm:ss'}} | Summary: "{{previewHistItem.summary}}"
+    <div class="preview-box" ng-bind-html="preview"></div>
+</div>

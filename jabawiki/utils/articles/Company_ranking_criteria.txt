@@ -1,0 +1,24 @@
+Personal
+=======
+* What's the pay?
+* What's the position?
+
+Tech
+====
+* What languages are used?
+* Are automated tests important?
+* What's the frontend/backend split?
+* What OS is used?
+
+Team
+====
+* Is the project interesting?
+* Is the team a cost center?
+* Is there on-call work?
+
+Company
+=======
+* Where is the office?
+* What's the dress code?
+* How flexible are the hours?
+* Can I work remotely?

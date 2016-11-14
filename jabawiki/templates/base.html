@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="wiki" ng-controller="MasterCtrl">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" type="image/png" href="/static/img/favicon.png">
+        <title ng-bind="title + ' - jabawiki'">Wiki</title>
+
+        <link href="/static/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+
+        <link rel="stylesheet" href="/static/lib/angular-loading-bar/build/loading-bar.min.css" />
+
+        <link rel="stylesheet" href="/static/css/main.css">
+
+        <base href="/">
+
+        <script src="/static/lib/angular/angular.js"></script>
+    </head>
+
+    <body ng-cloak>
+        <div class="container">
+            <div class="page-alert alert alert-{{ error[1] }}" ng-if="error" ng-bind="error[0]"></div>
+
+            <ol class="breadcrumb">
+                <li><a href="/"><span class="black glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
+                <li ng-class="{selected: page == 'view'}" class="action" ng-if="title"><a href="/w/{{title}}">View</a></li>
+                <li ng-class="{selected: page == 'edit'}" class="action" ng-if="title"><a href="/w/{{title}}/edit">Edit</a></li>
+                <li ng-class="{selected: page == 'history'}" class="action" ng-if="title"><a href="/w/{{title}}/history">History</a></li>
+                <li ng-class="{selected: page == 'login'}" class="action" ng-if="!user"><a href="/login">login / register</a></li>
+                <li class="action" ng-if="user"><a href="" ng-click="logoutUser()">logout</a></li>
+                <li ng-if="user" class="pull-right"><span class="pull-right"><a href="/profile">{{ user.Name }}</a></span>
+            </ol>
+            <div ng-view></div>
+
+
+        </div> <!-- /container -->
+
+        <script src="/static/lib/angular-route/angular-route.js"></script>
+        <script src="/static/lib/angular-resource/angular-resource.js"></script>
+        <script src="/static/lib/marked/lib/marked.js"></script>
+
+        <script src="/static/js/app.js"></script>
+        <script src="/static/js/services.js"></script>
+        <script src="/static/js/controllers.js"></script>
+
+        <script src="/static/lib/angular-loading-bar/build/loading-bar.min.js"></script>
+    </body>
+</html>
+

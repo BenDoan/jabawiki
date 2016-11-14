@@ -1,0 +1,176 @@
+count: 40
+
+## 3 - Li - Lithium
+- Lithium metal strips in mineral oil
+- Source: Lithium battery
+
+## 6 - C - Carbon
+- Carbon rods and industrial diamonds
+- Source: Carbon rods from lantern battery, diamonds from Ebay
+
+## 12 - Mg - Magnesium
+- Ribbons
+- Source: Ebay
+
+## 13 - Al - Aluminum
+- Aluminum rod
+- Source: Amazon
+
+## 14 - Si - Silicon
+- Silicon chips from boule making process
+- Source: Ebay
+
+## 16 - S - Sulfur
+- Sulfur powder
+- Source: Reggie's Reagents 
+
+## 22 - Ti - Titanium
+- Titanium rod
+- Source: Amazon
+
+## 23 - V - Vanadium
+- Vanadium Sphere
+- Source: Ebay
+
+## 24 - Cr - Chromium
+- Chromium metal fragments
+- Source: Amazon
+
+## 25 - Mn - Manganese
+- Small Manganese cylinders
+- Source: Ebay
+
+## 26 - Fe - Iron
+- Iron chunks
+- Source: Ebay
+
+## 27 - Co - Cobalt
+- Cobalt metal
+- Source: Ebay
+
+## 29 - Cu - Copper
+- Copper metal
+- Source: copper sponge
+
+## 30 - Zn - Zinc
+- Zinc metal
+- Source: Penny
+
+## 31 - Ga - Gallium
+- Gallium metal
+- Source: Amazon
+
+## 32 - Ge - Germanium
+- Fragments germanium metal disk
+- Source: Ebay
+
+## 34 - Se - Selenium
+- Metallic selenium fragments
+- Source: Ebay
+
+## 40 - Zr - Zirconium
+- Zirconium metal flakes, cubic zirconia gem
+- Source: Ebay
+
+## 41 - Nb - Niobium
+- Hypoallergenic metal earings
+- Source: Amazon
+
+## 42 - Mo - Molybdenum
+- Many tiny cylinders
+- Source: Ebay
+
+## 44 - Ru - Ruthenium
+- Chunk of ruthenium metal
+- Source: Ebay
+
+## 47 - Ag - Silver
+- 1g silver bar
+
+## 48 - Cd - Cadmium
+- Shaved pieces of cadmium metal
+- Source: Roto Metals
+
+## 49 - In - Indium
+- Chunk of indium metal
+- Source: Ebay
+
+## 50 - Sn - Tin
+- Tin pellets
+- Source: Ebay
+
+## 52 - Te - Tellurium
+- Tellurium metal shavings
+- Source: Ebay
+
+## 53 - I - Iodine
+- Iodine crystals
+- Source: Amazon
+
+## 58 - Ce - Cerium
+- Cerium oxide powder for polishing
+- Source: Amazon
+
+## 69 - Tm - Thulium
+- Thulium metal shavings
+- Source: Ebay
+
+## 70 - Yb - Ytterbium
+- Chunk of ytterbium metal
+- Source: Ebay
+
+## 73 - Ta - Tantalum
+- Tantalum foil
+- Source: Ebay
+
+## 74 - W - Tungsten
+- Tungsten rods ~1/8 in
+- Source: Amazon
+
+## 78 - Pt - Platinum
+- 1gr platinum bar
+- Source: Ebay
+
+## 79 - Au - Gold
+- Gold foil
+- Source: Amazon
+
+## 80 - Hg - Mercury
+- Mercury tilt switches
+- Source: Ebay
+
+## 82 - Pb - Lead
+- Lead fishing weights
+- Source: Amazon
+
+## 83 - Bi - Bismuth
+- Round chunk of bismuth metal
+-Source: Ebay
+
+## 90 - Th - Thorium
+- 2% thorium 98% tungsten thoriated welding rod
+- Source: Ebay
+
+## 92 - U - Uranium
+- Chunk of uraninite
+- Source: Amazon
+
+## 95 - Am - Americium
+- Americium discs
+- Source: Smoke detectors
+
+# Looking for:
+## 4 - Be - Beryllium
+## 11 - Na - Sodium
+## 20 - Ca - Calcium
+## 21 - Sc - Scandium
+## 35 - Br - Bromine
+## 38 - Sr - Strontium
+## 39 - Y - Yttrium
+## 51 - Sb - Antimony
+## 56 - Ba - Barium
+## 72 - Hf - Hafnium
+## 64 - Gd - Gadolinium
+
+# Misc
+* Vial store: http://www.vgdusa.com/vials_septas_crimpers.htm
