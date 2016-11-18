@@ -10,8 +10,7 @@
     "angular-resource": "~1.4.0",
     "jquery": "2.1.4",
     "angular-loading-bar": "0.7.1",
-    "bootstrap": "3.3.5",
-    "bootstrap": "0.3.6"
+    "bootstrap": "3.3.5"
   },
   "devDependencies": {}
 }
