@@ -120,7 +120,7 @@ def user_login():
     password = body["password"]
     user = get_user_by_email(email)
     if user is not None:
-        response.set_cookie("auth", user.id, secret=COOKIE_SECRET, path="/", expires=7776000)
+        response.set_cookie("auth", user.id, secret=COOKIE_SECRET, path="/", max_age=7776000)
     else:
         response.status = 400
         return "Invalid login"
