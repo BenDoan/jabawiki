@@ -15,8 +15,32 @@
     box-shadow: #2c3e50 1px 0 6px 1px;
 }
 
+html, body {
+    height:100%;
+}
+
 body {
     font-family: Arial, Helvetica, sans-serif;
+}
+
+body > .container {
+    height:100%;
+}
+
+.ngview {
+    height:100%;
+}
+
+form.edit {
+    width: 100%;
+    height: 100%;
+    overflow:hidden;
+}
+
+form.edit textarea {
+    width: 100%;
+    height: calc(100% - 300px);
+    min-height:100px;
 }
 
 pre {
@@ -54,18 +78,6 @@ div.content > div {
     width:100%;
 }
 
-form.edit {
-    width: 100%;
-    height: 100%;
-}
-
-textarea {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-}
 
 a {
     color: #49BF9D;
